@@ -4,7 +4,6 @@ services:
       APP_ENV: local
       APP_DEBUG: "true"
       APP_URL: http://127.0.0.1:2020
-      SESSION_DOMAIN: null
       SESSION_SECURE_COOKIE: "false"
       SESSION_SAME_SITE: lax
     volumes:

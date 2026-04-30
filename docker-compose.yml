@@ -21,7 +21,6 @@ services:
       DB_DATABASE: transport_cfarm
       DB_USERNAME: itadmin
       DB_PASSWORD: Noipalee@09
-      SESSION_DOMAIN: transport_cfarm.chuwitfarm.com
       SESSION_SECURE_COOKIE: "true"
       SESSION_SAME_SITE: lax
     working_dir: /var/www/html
