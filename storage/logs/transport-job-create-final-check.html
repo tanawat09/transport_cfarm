@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="SyrcDZe7clSa5RlAdvCSPqFMrXFUFAKRSTCI1W6I">
+    <title>ระบบบริหารรถขนส่งอาหารไก่</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f6f8fb; }
+        .sidebar { min-height: calc(100vh - 56px); background: #17324d; }
+        .sidebar .nav-link { color: rgba(255,255,255,.85); border-radius: .5rem; }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover { background: rgba(255,255,255,.12); color: #fff; }
+        .stat-card { border: 0; border-radius: 1rem; box-shadow: 0 10px 30px rgba(23,50,77,.08); }
+        .card { border: 0; border-radius: 1rem; box-shadow: 0 10px 30px rgba(23,50,77,.06); }
+        .table thead th { white-space: nowrap; }
+    </style>
+    </head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background:#10263a;">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-semibold" href="http://127.0.0.1:8086/dashboard">ระบบบริหารรถขนส่งอาหารไก่</a>
+        <div class="d-flex align-items-center gap-3 text-white">
+            <span>Administrator (admin)</span>
+            <form method="POST" action="http://127.0.0.1:8086/logout">
+                <input type="hidden" name="_token" value="SyrcDZe7clSa5RlAdvCSPqFMrXFUFAKRSTCI1W6I" autocomplete="off">                <button type="submit" class="btn btn-outline-light btn-sm">ออกจากระบบ</button>
+            </form>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <aside class="col-lg-2 px-3 py-4 sidebar">
+            <div class="nav flex-column gap-2">
+                <a class="nav-link " href="http://127.0.0.1:8086/dashboard">Dashboard</a>
+                                    <a class="nav-link " href="http://127.0.0.1:8086/vehicles">จัดการรถ</a>
+                    <a class="nav-link " href="http://127.0.0.1:8086/drivers">จัดการพนักงานขับ</a>
+                    <a class="nav-link " href="http://127.0.0.1:8086/farms">จัดการฟาร์ม</a>
+                    <a class="nav-link " href="http://127.0.0.1:8086/vendors">จัดการคู่สัญญา</a>
+                    <a class="nav-link " href="http://127.0.0.1:8086/route-standards">จัดการมาตรฐานเส้นทาง</a>
+                                <a class="nav-link active" href="http://127.0.0.1:8086/transport-jobs/create">บันทึกเที่ยวขนส่ง</a>
+                <a class="nav-link " href="http://127.0.0.1:8086/transport-jobs">รายการเที่ยวขนส่ง</a>
+                <a class="nav-link " href="http://127.0.0.1:8086/reports">รายงาน</a>
+                <a class="nav-link " href="http://127.0.0.1:8086/reports/date-range">ค้นหาตามช่วงวันที่</a>
+            </div>
+        </aside>
+        <main class="col-lg-10 px-4 py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">ระบบบริหารรถขนส่งอาหารไก่</h1>
+                                    </div>
+            </div>
+                        <div class="card"><div class="card-body">
+    <form method="POST" action="http://127.0.0.1:8086/transport-jobs" class="d-grid gap-4">
+        <input type="hidden" name="_token" value="SyrcDZe7clSa5RlAdvCSPqFMrXFUFAKRSTCI1W6I" autocomplete="off">        <div class="row g-3">
+    <div class="col-md-3">
+        <label class="form-label">วันที่ขนส่ง</label>
+        <input type="date" name="transport_date" id="transport_date" value="2026-03-26" class="form-control" required>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">เลขที่เอกสาร</label>
+        <input type="text" value="TRN-20260326-0003" id="document_no_preview" class="form-control" readonly>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">รถ</label>
+        <select name="vehicle_id" id="vehicle_id" class="form-select" required>
+            <option value="">เลือกรถ</option>
+                            <option value="3" data-primary-driver-id="3" >
+                    83-7766 - Scania / P360
+                </option>
+                    </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">พนักงานขับ</label>
+        <select name="driver_id" id="driver_id" class="form-select" required>
+            <option value="">เลือกพนักงานขับ</option>
+                            <option value="3" >
+                    6500012 - พิเชฐ อานี
+                </option>
+                    </select>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">ฟาร์ม</label>
+        <select name="farm_id" id="farm_id" class="form-select" required>
+            <option value="">เลือกฟาร์ม</option>
+                            <option value="4" >ฟาร์มก้านเหลือง</option>
+                            <option value="7" >ฟาร์มนรินทร์</option>
+                            <option value="5" >ฟาร์มบ้านบาตร</option>
+                            <option value="3" >ฟาร์มละหานทราย</option>
+                            <option value="6" >ฟาร์มศรีศุข</option>
+                            <option value="9" >ฟาร์มหนองถนน</option>
+                            <option value="8" >ฟาร์มหนองบอน</option>
+                            <option value="10" >ฟาร์มโคกสนวน</option>
+                    </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">คู่สัญญา</label>
+        <select name="vendor_id" id="vendor_id" class="form-select" required>
+            <option value="">เลือกคู่สัญญา</option>
+                            <option value="3" >เบทาโก</option>
+                            <option value="4" >แหลมทอง</option>
+                    </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">จำนวนอาหาร (กิโลกรัม)</label>
+        <input type="number" step="0.01" min="0" name="food_weight_kg" value="0" class="form-control" required>
+    </div>
+
+    <input type="hidden" name="route_standard_id" id="route_standard_id" value="">
+    <div class="col-12">
+        <div id="route_standard_alert" class="alert alert-info mb-0">เลือกฟาร์มและคู่สัญญาเพื่อโหลดมาตรฐานเส้นทางอัตโนมัติ</div>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">ไมล์ต้น</label>
+        <input type="number" step="0.01" min="0" name="odometer_start" id="odometer_start" value="0" class="form-control" required>
+        <div class="form-text" id="latest_mileage_hint">เลือกรถเพื่อดึงไมล์จากเที่ยวล่าสุด</div>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">ไมล์ปลาย</label>
+        <input type="number" step="0.01" min="0" name="odometer_end" id="odometer_end" value="0" class="form-control" required>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">ระยะทางจริง (กม.)</label>
+        <input type="number" step="0.01" id="actual_distance_km" value="0" class="form-control" readonly>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">ระยะทางมาตรฐาน (กม.)</label>
+        <input type="number" step="0.01" id="standard_distance_km" value="0" class="form-control" readonly>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">น้ำมันที่บริษัทกำหนด (ลิตร)</label>
+        <input type="number" step="0.01" id="company_oil_liters" value="0" class="form-control" readonly>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">ชดเชยน้ำมัน (ลิตร)</label>
+        <input type="number" step="0.01" min="0" name="oil_compensation_liters" id="oil_compensation_liters" value="0" class="form-control">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">เหตุผลชดเชย</label>
+        <select name="oil_compensation_reason_id" id="oil_compensation_reason_id" class="form-select">
+            <option value="">เลือกเหตุผล</option>
+                            <option value="2" data-requires-details="1" >
+                    ทางอ้อมจากเหตุฉุกเฉิน
+                </option>
+                            <option value="1" data-requires-details="0" >
+                    รถติดหนัก
+                </option>
+                            <option value="3" data-requires-details="1" >
+                    อื่นๆ
+                </option>
+                    </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">น้ำมันอนุมัติรวม (ลิตร)</label>
+        <input type="number" step="0.01" id="approved_oil_liters" value="0" class="form-control" readonly>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label">รายละเอียดชดเชย</label>
+        <textarea name="oil_compensation_details" id="oil_compensation_details" rows="2" class="form-control"></textarea>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">น้ำมันเติมจริง (ลิตร)</label>
+        <input type="number" step="0.01" min="0" name="actual_oil_liters" id="actual_oil_liters" value="0" class="form-control" required>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">ราคา/ลิตร</label>
+        <input type="number" step="0.01" min="0" name="oil_price_per_liter" id="oil_price_per_liter" value="0" class="form-control" required>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">ค่าน้ำมัน</label>
+        <input type="number" step="0.01" id="total_oil_cost" value="0" class="form-control" readonly>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">อัตราเฉลี่ยน้ำมัน (กม./ลิตร)</label>
+        <input type="number" step="0.01" id="average_fuel_rate_km_per_liter" value="0" class="form-control" readonly>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">ส่วนต่างน้ำมัน (ลิตร)</label>
+        <input type="number" step="0.01" id="oil_difference_liters" value="0" class="form-control" readonly>
+        <div class="form-text">ค่าบวก = ใช้น้ำมันเกิน, ศูนย์ = พอดี, ค่าลบ = ใช้น้ำมันต่ำกว่าที่อนุมัติ</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">ส่วนต่างน้ำมัน (บาท)</label>
+        <input type="number" step="0.01" id="oil_difference_amount" value="0" class="form-control" readonly>
+        <div class="form-text">คำนวณจาก ส่วนต่างน้ำมัน (ลิตร) × ราคา/ลิตร</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">ส่วนต่างระยะทาง</label>
+        <input type="number" step="0.01" id="distance_difference_km" value="0" class="form-control" readonly>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label">หมายเหตุ</label>
+        <textarea name="notes" rows="3" class="form-control"></textarea>
+    </div>
+</div>
+
+        <div>
+            <button class="btn btn-primary">บันทึกเที่ยวขนส่ง</button>
+            <a href="http://127.0.0.1:8086/transport-jobs" class="btn btn-outline-secondary">กลับ</a>
+        </div>
+    </form>
+</div></div>
+        </main>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const vehicleField = document.getElementById('vehicle_id');
+const driverField = document.getElementById('driver_id');
+const farmField = document.getElementById('farm_id');
+const vendorField = document.getElementById('vendor_id');
+const routeStandardIdField = document.getElementById('route_standard_id');
+const companyOilField = document.getElementById('company_oil_liters');
+const standardDistanceField = document.getElementById('standard_distance_km');
+const compensationField = document.getElementById('oil_compensation_liters');
+const approvedOilField = document.getElementById('approved_oil_liters');
+const odometerStartField = document.getElementById('odometer_start');
+const odometerEndField = document.getElementById('odometer_end');
+const latestMileageHint = document.getElementById('latest_mileage_hint');
+const actualDistanceField = document.getElementById('actual_distance_km');
+const actualOilField = document.getElementById('actual_oil_liters');
+const oilPriceField = document.getElementById('oil_price_per_liter');
+const totalOilCostField = document.getElementById('total_oil_cost');
+const averageFuelRateField = document.getElementById('average_fuel_rate_km_per_liter');
+const oilDifferenceField = document.getElementById('oil_difference_liters');
+const oilDifferenceAmountField = document.getElementById('oil_difference_amount');
+const distanceDifferenceField = document.getElementById('distance_difference_km');
+const reasonField = document.getElementById('oil_compensation_reason_id');
+const detailsField = document.getElementById('oil_compensation_details');
+const alertBox = document.getElementById('route_standard_alert');
+const transportDateField = document.getElementById('transport_date');
+const documentNoField = document.getElementById('document_no_preview');
+const isEditMode = false;
+
+function syncDriverWithVehicle(force = false) {
+    const selectedVehicle = vehicleField.options[vehicleField.selectedIndex];
+    if (!selectedVehicle) return;
+
+    const driverId = selectedVehicle.dataset.primaryDriverId || '';
+    if (!driverId) return;
+
+    if (force || !driverField.value) {
+        driverField.value = driverId;
+    }
+}
+
+const num = (value) => parseFloat(value || 0) || 0;
+
+function toggleReasonRequirement() {
+    const selected = reasonField.options[reasonField.selectedIndex];
+    const compensation = num(compensationField.value);
+    const needsDetails = selected && selected.dataset.requiresDetails === '1';
+
+    reasonField.required = compensation > 0;
+    detailsField.required = compensation > 0 && needsDetails;
+}
+
+function recalculate() {
+    const actualDistance = Math.max(num(odometerEndField.value) - num(odometerStartField.value), 0);
+    const approvedOil = num(companyOilField.value) + num(compensationField.value);
+    const actualOil = num(actualOilField.value);
+    const oilPrice = num(oilPriceField.value);
+    const totalOilCost = actualOil * oilPrice;
+    const oilDifference = actualOil - approvedOil;
+    const oilDifferenceAmount = oilDifference * oilPrice;
+    const distanceDifference = actualDistance - num(standardDistanceField.value);
+    const averageFuelRate = actualOil > 0 ? actualDistance / actualOil : 0;
+
+    actualDistanceField.value = actualDistance.toFixed(2);
+    approvedOilField.value = approvedOil.toFixed(2);
+    totalOilCostField.value = totalOilCost.toFixed(2);
+    oilDifferenceField.value = oilDifference.toFixed(2);
+    oilDifferenceAmountField.value = oilDifferenceAmount.toFixed(2);
+    distanceDifferenceField.value = distanceDifference.toFixed(2);
+    averageFuelRateField.value = averageFuelRate.toFixed(2);
+
+    toggleReasonRequirement();
+}
+
+async function fetchLatestVehicleMileage(force = false) {
+    if (!vehicleField.value) {
+        latestMileageHint.textContent = 'เลือกรถเพื่อดึงไมล์จากเที่ยวล่าสุด';
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8086/lookup/latest-vehicle-mileage?vehicle_id=${vehicleField.value}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (!isEditMode && (force || num(odometerStartField.value) === 0)) {
+                odometerStartField.value = '0.00';
+            }
+            latestMileageHint.textContent = data.message || 'ยังไม่พบประวัติเที่ยวล่าสุดของรถคันนี้';
+            recalculate();
+            return;
+        }
+
+        if (force || (!isEditMode && num(odometerStartField.value) === 0)) {
+            odometerStartField.value = Number(data.odometer_start || 0).toFixed(2);
+            recalculate();
+        }
+
+        const dateLabel = data.latest_transport_date || '-';
+        const docLabel = data.latest_document_no || '-';
+        latestMileageHint.textContent = `ดึงไมล์ต้นจากเที่ยวล่าสุด: ${Number(data.odometer_start || 0).toFixed(2)} | เอกสาร ${docLabel} | วันที่ ${dateLabel}`;
+    } catch (error) {
+        latestMileageHint.textContent = 'ไม่สามารถโหลดไมล์เที่ยวล่าสุดได้';
+    }
+}
+
+async function fetchRouteStandard() {
+    if (!farmField.value || !vendorField.value) {
+        routeStandardIdField.value = '';
+        companyOilField.value = '0.00';
+        standardDistanceField.value = '0.00';
+        alertBox.className = 'alert alert-info mb-0';
+        alertBox.textContent = 'เลือกฟาร์มและคู่สัญญาเพื่อโหลดมาตรฐานเส้นทางอัตโนมัติ';
+        recalculate();
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8086/lookup/route-standard?farm_id=${farmField.value}&vendor_id=${vendorField.value}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            routeStandardIdField.value = '';
+            companyOilField.value = '0.00';
+            standardDistanceField.value = '0.00';
+            alertBox.className = 'alert alert-warning mb-0';
+            alertBox.textContent = data.message || 'ไม่พบมาตรฐานเส้นทางสำหรับฟาร์มและคู่สัญญาที่เลือก';
+            recalculate();
+            return;
+        }
+
+        routeStandardIdField.value = data.id;
+        companyOilField.value = Number(data.company_oil_liters).toFixed(2);
+        standardDistanceField.value = Number(data.standard_distance_km).toFixed(2);
+        alertBox.className = 'alert alert-success mb-0';
+        alertBox.textContent = 'โหลดมาตรฐานเส้นทางเรียบร้อยแล้ว';
+        recalculate();
+    } catch (error) {
+        alertBox.className = 'alert alert-danger mb-0';
+        alertBox.textContent = 'ไม่สามารถโหลดข้อมูลมาตรฐานเส้นทางได้';
+    }
+}
+
+async function fetchDocumentNumber() {
+    if (!transportDateField.value) return;
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8086/lookup/document-number?transport_date=${transportDateField.value}`);
+        const data = await response.json();
+
+        if (data.document_no) {
+            documentNoField.value = data.document_no;
+        }
+    } catch (error) {
+    }
+}
+
+vehicleField.addEventListener('change', async () => {
+    syncDriverWithVehicle(false);
+    await fetchLatestVehicleMileage(true);
+});
+[farmField, vendorField].forEach((field) => field.addEventListener('change', fetchRouteStandard));
+[odometerStartField, odometerEndField, compensationField, actualOilField, oilPriceField].forEach((field) => field.addEventListener('input', recalculate));
+compensationField.addEventListener('input', toggleReasonRequirement);
+reasonField.addEventListener('change', toggleReasonRequirement);
+transportDateField.addEventListener('change', fetchDocumentNumber);
+
+syncDriverWithVehicle(false);
+fetchLatestVehicleMileage(false);
+fetchRouteStandard();
+fetchDocumentNumber();
+recalculate();
+</script>
+</body>
+</html>
