@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
+        User::firstOrCreate(
             ['email' => 'admin@cfarm.local'],
             [
                 'name' => 'Administrator',
@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
             ]
         );
 
-        User::updateOrCreate(
+        User::firstOrCreate(
             ['email' => 'operator@cfarm.local'],
             [
                 'name' => 'Operator',
