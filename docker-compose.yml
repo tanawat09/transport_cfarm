@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: transport_cfarm_app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "2020:80"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://127.0.0.1:2020
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: transport_cfarm
+      DB_USERNAME: itadmin
+      DB_PASSWORD: Noipalee@09
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+
+  db:
+    image: mariadb:11.4
+    container_name: transport_cfarm_db
+    restart: unless-stopped
+    ports:
+      - "3310:3306"
+    environment:
+      MARIADB_DATABASE: transport_cfarm
+      MARIADB_USER: itadmin
+      MARIADB_PASSWORD: Noipalee@09
+      MARIADB_ROOT_PASSWORD: rootpass
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  mariadb_data:

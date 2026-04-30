@@ -2,10 +2,18 @@
 
 @section('content')
 <div class="card mb-4"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+        <form method="POST" action="{{ route('transport-jobs.recalculate') }}" onsubmit="return confirm('ยืนยันการคำนวณใหม่ทั้งหมด? ระบบจะเรียงตามวันที่ของรถแต่ละคัน')">
+            @csrf
+            <button type="submit" class="btn btn-outline-primary">คำนวณใหม่ทั้งหมด</button>
+        </form>
+        <a href="{{ route('transport-jobs.create') }}" class="btn btn-success">บันทึกเที่ยวขนส่ง</a>
+    </div>
+
     <form method="GET" class="row g-3 align-items-end">
         <div class="col-md-3">
             <label class="form-label">คำค้น</label>
-            <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control" placeholder="เลขที่เอกสาร">
+            <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control" placeholder="เลขที่เอกสาร หรือทะเบียนรถ">
         </div>
         <div class="col-md-3">
             <label class="form-label">วันที่เริ่มต้น</label>
@@ -19,7 +27,6 @@
             <button class="btn btn-primary">ค้นหา</button>
             <a href="{{ route('transport-jobs.index') }}" class="btn btn-outline-secondary">ล้าง</a>
         </div>
-        <div class="col text-end"><a href="{{ route('transport-jobs.create') }}" class="btn btn-success">บันทึกเที่ยวขนส่ง</a></div>
     </form>
 </div></div>
 <div class="card"><div class="card-body table-responsive">
@@ -35,6 +42,7 @@
                 <th class="text-end">ค่าน้ำมัน</th>
                 <th class="text-end">ส่วนต่างน้ำมัน (ลิตร)</th>
                 <th class="text-end">ส่วนต่างน้ำมัน (บาท)</th>
+                <th>สถานะคำนวณ</th>
                 <th class="text-end">จัดการ</th>
             </tr>
         </thead>
@@ -50,6 +58,17 @@
                 <td class="text-end">{{ number_format($job->total_oil_cost, 2) }}</td>
                 <td class="text-end">{{ number_format($job->oil_difference_liters, 2) }}</td>
                 <td class="text-end">{{ number_format($job->oil_difference_amount, 2) }}</td>
+                <td>
+                    @if($job->calculation_status === 'warning')
+                        <span class="badge text-bg-warning">ตรวจไมล์</span>
+                    @elseif($job->calculation_status === 'error')
+                        <span class="badge text-bg-danger">ผิดพลาด</span>
+                    @elseif($job->calculation_status === 'calculated')
+                        <span class="badge text-bg-success">คำนวณแล้ว</span>
+                    @else
+                        <span class="badge text-bg-secondary">รอคำนวณ</span>
+                    @endif
+                </td>
                 <td class="text-end">
                     <a href="{{ route('transport-jobs.show', $job) }}" class="btn btn-sm btn-info text-white">ดู</a>
                     <a href="{{ route('transport-jobs.edit', $job) }}" class="btn btn-sm btn-warning">แก้ไข</a>
@@ -61,7 +80,7 @@
                 </td>
             </tr>
         @empty
-            <tr><td colspan="10" class="text-center text-muted">ยังไม่มีข้อมูลเที่ยวขนส่ง</td></tr>
+            <tr><td colspan="11" class="text-center text-muted">ยังไม่มีข้อมูลเที่ยวขนส่ง</td></tr>
         @endforelse
         </tbody>
     </table>

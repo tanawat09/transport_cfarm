@@ -24,11 +24,15 @@ class TransportJobRequest extends FormRequest
             'route_standard_id' => ['required', 'exists:route_standards,id'],
             'food_weight_kg' => ['required', 'numeric', 'min:0'],
             'odometer_start' => ['required', 'numeric', 'min:0'],
-            'odometer_end' => ['required', 'numeric', 'min:0', 'gte:odometer_start'],
+            'odometer_end' => ['required', 'numeric', 'min:0'],
+            'other_job_description' => ['nullable', 'string', 'max:255'],
+            'other_job_odometer_start' => ['nullable', 'numeric', 'min:0', 'required_with:other_job_odometer_end'],
+            'other_job_odometer_end' => ['nullable', 'numeric', 'min:0', 'required_with:other_job_odometer_start'],
             'oil_compensation_liters' => ['nullable', 'numeric', 'min:0'],
             'oil_compensation_reason_id' => ['nullable', 'exists:oil_compensation_reasons,id'],
             'oil_compensation_details' => ['nullable', 'string'],
             'actual_oil_liters' => ['required', 'numeric', 'min:0'],
+            'vehicle_screen_oil_liters' => ['nullable', 'numeric', 'min:0'],
             'oil_price_per_liter' => ['required', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],
         ];
@@ -46,6 +50,14 @@ class TransportJobRequest extends FormRequest
 
             if (! $routeStandard) {
                 $validator->errors()->add('route_standard_id', 'ไม่พบมาตรฐานเส้นทางที่ใช้งานได้สำหรับฟาร์มและคู่สัญญานี้');
+            }
+
+            $otherStart = $this->input('other_job_odometer_start');
+            $otherEnd = $this->input('other_job_odometer_end');
+            $otherDescription = trim((string) $this->input('other_job_description'));
+
+            if (($otherStart !== null || $otherEnd !== null) && $otherDescription === '') {
+                $validator->errors()->add('other_job_description', 'กรุณาระบุรายละเอียดการวิ่งงานอื่นๆ');
             }
 
             $compensationLiters = (float) $this->input('oil_compensation_liters', 0);

@@ -1,5 +1,6 @@
 @php
     $selectedReasonId = old('oil_compensation_reason_id', $transportJob->oil_compensation_reason_id);
+    $hasOtherJob = old('has_other_job', $transportJob->other_job_description || $transportJob->other_job_odometer_start !== null || $transportJob->other_job_odometer_end !== null);
 @endphp
 
 @push('styles')
@@ -88,9 +89,37 @@
         <label class="form-label">ไมล์ปลาย</label>
         <input type="number" step="0.01" min="0" name="odometer_end" id="odometer_end" value="{{ old('odometer_end', $transportJob->odometer_end ?? 0) }}" class="form-control" required>
     </div>
+    <div class="col-12">
+        <div class="border rounded-3 p-3 bg-light">
+            <div class="form-check form-switch mb-0">
+                <input type="checkbox" name="has_other_job" value="1" id="has_other_job" class="form-check-input" @checked($hasOtherJob)>
+                <label class="form-check-label fw-semibold" for="has_other_job">กรุณาเลือกในกรณีมีวิ่งงานอื่นๆ</label>
+            </div>
+            <div id="other_job_fields" class="row g-3 mt-1 {{ $hasOtherJob ? '' : 'd-none' }}">
+                <div class="col-md-3">
+                    <label class="form-label">รายละเอียดงานอื่นๆ</label>
+                    <input type="text" name="other_job_description" id="other_job_description" value="{{ old('other_job_description', $transportJob->other_job_description) }}" class="form-control" placeholder="เช่น วิ่งไปรับของ / เข้าศูนย์ / งานเสริม">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">ไมล์ต้นงานอื่นๆ</label>
+                    <input type="number" step="0.01" min="0" name="other_job_odometer_start" id="other_job_odometer_start" value="{{ old('other_job_odometer_start', $transportJob->other_job_odometer_start) }}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">ไมล์ปลายงานอื่นๆ</label>
+                    <input type="number" step="0.01" min="0" name="other_job_odometer_end" id="other_job_odometer_end" value="{{ old('other_job_odometer_end', $transportJob->other_job_odometer_end) }}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label readonly-label">ระยะทางงานอื่นๆ (กม.)</label>
+                    <input type="number" step="0.01" id="other_job_distance_km" value="{{ old('other_job_distance_km', $transportJob->other_job_distance_km ?? 0) }}" class="form-control readonly-input" readonly>
+                </div>
+            </div>
+            <div id="other_job_help" class="form-text mt-2 {{ $hasOtherJob ? '' : 'd-none' }}">ระบบจะนำระยะทางงานอื่นๆ ไปบวกกับระยะทางขนส่งอาหาร เพื่อใช้คำนวณค่าน้ำมันและอัตราเฉลี่ยน้ำมัน</div>
+        </div>
+    </div>
     <div class="col-md-3">
         <label class="form-label readonly-label">ระยะทางจริง (กม.)</label>
         <input type="number" step="0.01" id="actual_distance_km" value="{{ old('actual_distance_km', $transportJob->actual_distance_km ?? 0) }}" class="form-control readonly-input" readonly>
+        <div class="form-text">ค่าจริงจะคำนวณใหม่หลังบันทึก โดยเรียงตามวันที่ของรถคันนี้</div>
     </div>
     <div class="col-md-3">
         <label class="form-label readonly-label">ระยะทางมาตรฐาน (กม.)</label>
@@ -131,6 +160,10 @@
         <input type="number" step="0.01" min="0" name="actual_oil_liters" id="actual_oil_liters" value="{{ old('actual_oil_liters', $transportJob->actual_oil_liters ?? 0) }}" class="form-control" required>
     </div>
     <div class="col-md-3">
+        <label class="form-label">น้ำมัน/เที่ยว (หน้าจอรถ)</label>
+        <input type="number" step="0.01" min="0" name="vehicle_screen_oil_liters" id="vehicle_screen_oil_liters" value="{{ old('vehicle_screen_oil_liters', $transportJob->vehicle_screen_oil_liters) }}" class="form-control">
+    </div>
+    <div class="col-md-3">
         <label class="form-label">ราคา/ลิตร</label>
         <input type="number" step="0.01" min="0" name="oil_price_per_liter" id="oil_price_per_liter" value="{{ old('oil_price_per_liter', $transportJob->oil_price_per_liter ?? 0) }}" class="form-control" required>
     </div>
@@ -146,7 +179,7 @@
     <div class="col-md-6">
         <label class="form-label readonly-label">ส่วนต่างน้ำมัน (ลิตร)</label>
         <input type="number" step="0.01" id="oil_difference_liters" value="{{ old('oil_difference_liters', $transportJob->oil_difference_liters ?? 0) }}" class="form-control readonly-input" readonly>
-        <div class="form-text">ค่าบวก = ใช้น้ำมันเกิน, ศูนย์ = พอดี, ค่าลบ = ใช้น้ำมันต่ำกว่าที่อนุมัติ</div>
+        <div class="form-text">ค่าบวก = เติมจริงน้อยกว่าที่บริษัทกำหนด, ศูนย์ = เท่ากัน, ค่าลบ = เติมจริงมากกว่าที่บริษัทกำหนด</div>
     </div>
     <div class="col-md-6">
         <label class="form-label readonly-label">ส่วนต่างน้ำมัน (บาท)</label>
@@ -177,9 +210,17 @@ const compensationField = document.getElementById('oil_compensation_liters');
 const approvedOilField = document.getElementById('approved_oil_liters');
 const odometerStartField = document.getElementById('odometer_start');
 const odometerEndField = document.getElementById('odometer_end');
+const hasOtherJobField = document.getElementById('has_other_job');
+const otherJobFields = document.getElementById('other_job_fields');
+const otherJobHelp = document.getElementById('other_job_help');
+const otherJobDescriptionField = document.getElementById('other_job_description');
+const otherJobOdometerStartField = document.getElementById('other_job_odometer_start');
+const otherJobOdometerEndField = document.getElementById('other_job_odometer_end');
+const otherJobDistanceField = document.getElementById('other_job_distance_km');
 const latestMileageHint = document.getElementById('latest_mileage_hint');
 const actualDistanceField = document.getElementById('actual_distance_km');
 const actualOilField = document.getElementById('actual_oil_liters');
+const vehicleScreenOilField = document.getElementById('vehicle_screen_oil_liters');
 const oilPriceField = document.getElementById('oil_price_per_liter');
 const totalOilCostField = document.getElementById('total_oil_cost');
 const averageFuelRateField = document.getElementById('average_fuel_rate_km_per_liter');
@@ -243,17 +284,40 @@ function toggleReasonRequirement() {
     detailsField.required = compensation > 0 && needsDetails;
 }
 
+function toggleOtherJobFields() {
+    const enabled = hasOtherJobField.checked;
+
+    otherJobFields.classList.toggle('d-none', !enabled);
+    otherJobHelp.classList.toggle('d-none', !enabled);
+    [otherJobDescriptionField, otherJobOdometerStartField, otherJobOdometerEndField].forEach((field) => {
+        field.disabled = !enabled;
+    });
+
+    if (!enabled) {
+        otherJobDescriptionField.value = '';
+        otherJobOdometerStartField.value = '';
+        otherJobOdometerEndField.value = '';
+    }
+
+    recalculate();
+}
+
 function recalculate() {
-    const actualDistance = Math.max(num(odometerEndField.value) - num(odometerStartField.value), 0);
+    const foodTransportDistance = Math.max(num(odometerEndField.value) - num(odometerStartField.value), 0);
+    const hasOtherJobMileage = hasOtherJobField.checked && (otherJobOdometerStartField.value !== '' || otherJobOdometerEndField.value !== '');
+    const otherJobDistance = hasOtherJobMileage ? Math.max(num(otherJobOdometerEndField.value) - num(otherJobOdometerStartField.value), 0) : 0;
+    const actualDistance = foodTransportDistance + otherJobDistance;
     const approvedOil = num(companyOilField.value) + num(compensationField.value);
     const actualOil = num(actualOilField.value);
+    const vehicleScreenOil = num(vehicleScreenOilField.value);
     const oilPrice = num(oilPriceField.value);
     const totalOilCost = actualOil * oilPrice;
-    const oilDifference = actualOil - approvedOil;
+    const oilDifference = num(companyOilField.value) - actualOil;
     const oilDifferenceAmount = oilDifference * oilPrice;
     const distanceDifference = actualDistance - num(standardDistanceField.value);
-    const averageFuelRate = actualOil > 0 ? actualDistance / actualOil : 0;
+    const averageFuelRate = vehicleScreenOil > 0 ? actualDistance / vehicleScreenOil : 0;
 
+    otherJobDistanceField.value = otherJobDistance.toFixed(2);
     actualDistanceField.value = actualDistance.toFixed(2);
     approvedOilField.value = approvedOil.toFixed(2);
     totalOilCostField.value = totalOilCost.toFixed(2);
@@ -311,7 +375,11 @@ async function fetchLatestVehicleMileage(force = false) {
     }
 
     try {
-        const response = await fetch(`{{ route('lookup.latest-vehicle-mileage') }}?vehicle_id=${vehicleField.value}`);
+        const params = new URLSearchParams({
+            vehicle_id: vehicleField.value,
+            transport_date: transportDateField.value || '',
+        });
+        const response = await fetch(`{{ route('lookup.latest-vehicle-mileage') }}?${params.toString()}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -382,15 +450,20 @@ vehicleField.addEventListener('change', async () => {
 });
 farmField.addEventListener('change', () => fetchFarmVendors(false));
 vendorField.addEventListener('change', fetchRouteStandard);
-[odometerStartField, odometerEndField, compensationField, actualOilField, oilPriceField].forEach((field) => field.addEventListener('input', recalculate));
+[odometerStartField, odometerEndField, otherJobOdometerStartField, otherJobOdometerEndField, compensationField, actualOilField, vehicleScreenOilField, oilPriceField].forEach((field) => field.addEventListener('input', recalculate));
+hasOtherJobField.addEventListener('change', toggleOtherJobFields);
 compensationField.addEventListener('input', toggleReasonRequirement);
 reasonField.addEventListener('change', toggleReasonRequirement);
-transportDateField.addEventListener('change', fetchDocumentNumber);
+transportDateField.addEventListener('change', async () => {
+    await fetchDocumentNumber();
+    await fetchLatestVehicleMileage(true);
+});
 
 syncDriverWithVehicle(false);
 fetchLatestVehicleMileage(false);
 fetchFarmVendors(true);
 fetchDocumentNumber();
+toggleOtherJobFields();
 recalculate();
 </script>
 @endpush

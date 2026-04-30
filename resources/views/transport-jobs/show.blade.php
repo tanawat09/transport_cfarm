@@ -15,6 +15,9 @@
                 <tr><th>จำนวนอาหาร</th><td>{{ number_format($transportJob->food_weight_kg, 2) }} กก.</td></tr>
                 <tr><th>ไมล์ต้น</th><td>{{ number_format($transportJob->odometer_start, 2) }}</td></tr>
                 <tr><th>ไมล์ปลาย</th><td>{{ number_format($transportJob->odometer_end, 2) }}</td></tr>
+                <tr><th>งานอื่นๆ</th><td>{{ $transportJob->other_job_description ?: '-' }}</td></tr>
+                <tr><th>ไมล์ต้นงานอื่นๆ</th><td>{{ $transportJob->other_job_odometer_start !== null ? number_format($transportJob->other_job_odometer_start, 2) : '-' }}</td></tr>
+                <tr><th>ไมล์ปลายงานอื่นๆ</th><td>{{ $transportJob->other_job_odometer_end !== null ? number_format($transportJob->other_job_odometer_end, 2) : '-' }}</td></tr>
             </table>
         </div></div>
     </div>
@@ -22,18 +25,35 @@
         <div class="card"><div class="card-body">
             <h2 class="h5 mb-3">ผลคำนวณ</h2>
             <table class="table table-sm mb-0">
+                <tr><th>ระยะทางงานอื่นๆ</th><td>{{ number_format($transportJob->other_job_distance_km ?? 0, 2) }} กม.</td></tr>
                 <tr><th>ระยะทางจริง</th><td>{{ number_format($transportJob->actual_distance_km, 2) }} กม.</td></tr>
                 <tr><th>ระยะทางมาตรฐาน</th><td>{{ number_format($transportJob->standard_distance_km, 2) }} กม.</td></tr>
                 <tr><th>น้ำมันที่บริษัทกำหนด</th><td>{{ number_format($transportJob->company_oil_liters, 2) }} ลิตร</td></tr>
                 <tr><th>ชดเชยน้ำมัน</th><td>{{ number_format($transportJob->oil_compensation_liters, 2) }} ลิตร</td></tr>
                 <tr><th>น้ำมันอนุมัติรวม</th><td>{{ number_format($transportJob->approved_oil_liters, 2) }} ลิตร</td></tr>
                 <tr><th>น้ำมันเติมจริง</th><td>{{ number_format($transportJob->actual_oil_liters, 2) }} ลิตร</td></tr>
+                <tr><th>น้ำมัน/เที่ยว (หน้าจอรถ)</th><td>{{ $transportJob->vehicle_screen_oil_liters !== null ? number_format($transportJob->vehicle_screen_oil_liters, 2) . ' ลิตร' : '-' }}</td></tr>
                 <tr><th>ราคา/ลิตร</th><td>{{ number_format($transportJob->oil_price_per_liter, 2) }} บาท</td></tr>
                 <tr><th>ค่าน้ำมัน</th><td>{{ number_format($transportJob->total_oil_cost, 2) }} บาท</td></tr>
                 <tr><th>ส่วนต่างน้ำมัน</th><td>{{ number_format($transportJob->oil_difference_liters, 2) }} ลิตร</td></tr>
                 <tr><th>ส่วนต่างน้ำมันเป็นเงิน</th><td>{{ number_format($transportJob->oil_difference_amount, 2) }} บาท</td></tr>
                 <tr><th>ส่วนต่างระยะทาง</th><td>{{ number_format($transportJob->distance_difference_km, 2) }} กม.</td></tr>
                 <tr><th>อัตราเฉลี่ยน้ำมัน</th><td>{{ number_format($transportJob->average_fuel_rate_km_per_liter, 2) }} กม./ลิตร</td></tr>
+                <tr>
+                    <th>สถานะคำนวณ</th>
+                    <td>
+                        @if($transportJob->calculation_status === 'warning')
+                            <span class="badge text-bg-warning">ตรวจไมล์</span>
+                        @elseif($transportJob->calculation_status === 'error')
+                            <span class="badge text-bg-danger">ผิดพลาด</span>
+                        @elseif($transportJob->calculation_status === 'calculated')
+                            <span class="badge text-bg-success">คำนวณแล้ว</span>
+                        @else
+                            <span class="badge text-bg-secondary">รอคำนวณ</span>
+                        @endif
+                    </td>
+                </tr>
+                <tr><th>หมายเหตุคำนวณ</th><td>{{ $transportJob->calculation_note ?: '-' }}</td></tr>
             </table>
         </div></div>
     </div>

@@ -86,9 +86,13 @@ class TransportJobLookupController extends Controller
     {
         $request->validate([
             'vehicle_id' => ['required', 'integer'],
+            'transport_date' => ['nullable', 'date'],
         ]);
 
-        $latestJob = $this->calculationService->findLatestVehicleJob($request->integer('vehicle_id'));
+        $latestJob = $this->calculationService->findLatestVehicleJob(
+            $request->integer('vehicle_id'),
+            $request->input('transport_date'),
+        );
 
         if (! $latestJob) {
             return response()->json([

@@ -18,6 +18,9 @@ class VehicleRequest extends FormRequest
 
         return [
             'registration_number' => ['required', 'string', 'max:50', Rule::unique('vehicles', 'registration_number')->ignore($vehicleId)->whereNull('deleted_at')],
+            'registered_at' => ['nullable', 'date'],
+            'vehicle_type' => ['nullable', 'string', 'max:100'],
+            'towing_vehicle' => ['nullable', 'string', 'max:100'],
             'brand' => ['required', 'string', 'max:100'],
             'model' => ['nullable', 'string', 'max:100'],
             'capacity_kg' => ['nullable', 'numeric', 'min:0'],

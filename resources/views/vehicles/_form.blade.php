@@ -4,12 +4,43 @@
         <input type="text" name="registration_number" value="{{ old('registration_number', $vehicle->registration_number) }}" class="form-control" required>
     </div>
     <div class="col-md-4">
+        <label class="form-label">วันที่จดทะเบียน</label>
+        <input type="date" name="registered_at" value="{{ old('registered_at', optional($vehicle->registered_at)->format('Y-m-d')) }}" class="form-control">
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">ประเภทรถ</label>
+        <select name="vehicle_type" class="form-select">
+            <option value="">เลือกประเภทรถ</option>
+            @foreach([
+                'รถยนต์บรรทุกส่วนบุคคล',
+                'รถกึ่งพ่วงบรรทุกอาหารสัตว์',
+                'ลากจูง',
+                'รถไถ',
+                'รถยนต์นั่งส่วนบุคคลไม่เกิน 7 คน',
+                'รถไถ คูโบต้า',
+            ] as $vehicleType)
+                <option value="{{ $vehicleType }}" @selected(old('vehicle_type', $vehicle->vehicle_type) === $vehicleType)>{{ $vehicleType }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-4">
         <label class="form-label">ยี่ห้อ</label>
         <input type="text" name="brand" value="{{ old('brand', $vehicle->brand) }}" class="form-control" required>
     </div>
     <div class="col-md-4">
         <label class="form-label">รุ่น</label>
         <input type="text" name="model" value="{{ old('model', $vehicle->model) }}" class="form-control">
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">ลากจูง</label>
+        <select name="towing_vehicle" class="form-select">
+            <option value="">เลือกทะเบียนลากจูง</option>
+            @foreach($towingVehicles as $towingVehicle)
+                <option value="{{ $towingVehicle->registration_number }}" @selected(old('towing_vehicle', $vehicle->towing_vehicle) === $towingVehicle->registration_number)>
+                    {{ $towingVehicle->registration_number }}
+                </option>
+            @endforeach
+        </select>
     </div>
     <div class="col-md-4">
         <label class="form-label">ความจุ (กก.)</label>

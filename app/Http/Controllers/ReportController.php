@@ -33,7 +33,10 @@ class ReportController extends Controller
             'filters' => $filters,
             'jobs' => $query->paginate(30)->withQueryString(),
             'summary' => $this->reportService->summary($query),
-            'vehicles' => Vehicle::query()->orderBy('registration_number')->get(),
+            'vehicles' => Vehicle::query()
+                ->where('vehicle_type', 'ลากจูง')
+                ->orderBy('registration_number')
+                ->get(),
             'drivers' => Driver::query()->orderBy('full_name')->get(),
             'farms' => Farm::query()->orderBy('farm_name')->get(),
             'vendors' => Vendor::query()->orderBy('vendor_name')->get(),

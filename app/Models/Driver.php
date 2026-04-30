@@ -38,4 +38,9 @@ class Driver extends Model
     {
         return $this->hasMany(Vehicle::class, 'primary_driver_id');
     }
+
+    public function preTripInspections(): HasMany
+    {
+        return $this->hasMany(PreTripInspection::class);
+    }
 }

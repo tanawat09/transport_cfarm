@@ -31,7 +31,12 @@ class TransportJobController extends Controller
             ->with(['vehicle', 'driver', 'farm', 'vendor'])
             ->when($request->filled('keyword'), function ($query) use ($request) {
                 $keyword = $request->string('keyword');
-                $query->where('document_no', 'like', "%{$keyword}%");
+                $query->where(function ($subQuery) use ($keyword) {
+                    $subQuery->where('document_no', 'like', "%{$keyword}%")
+                        ->orWhereHas('vehicle', function ($vehicleQuery) use ($keyword) {
+                            $vehicleQuery->where('registration_number', 'like', "%{$keyword}%");
+                        });
+                });
             })
             ->when($request->filled('start_date'), fn ($query) => $query->whereDate('transport_date', '>=', $request->date('start_date')->toDateString()))
             ->when($request->filled('end_date'), fn ($query) => $query->whereDate('transport_date', '<=', $request->date('end_date')->toDateString()))
@@ -60,7 +65,7 @@ class TransportJobController extends Controller
     {
         $validated = $request->validated();
         $routeStandard = RouteStandard::query()->findOrFail($validated['route_standard_id']);
-        $payload = $this->calculationService->buildPayload($validated, $routeStandard);
+        $payload = $this->calculationService->buildRawPayload($validated, $routeStandard);
         $payload['document_no'] = $this->runningNumberService->generateTransportDocumentNo($validated['transport_date']);
 
         DB::transaction(fn () => TransportJob::create($payload));
@@ -90,7 +95,7 @@ class TransportJobController extends Controller
     {
         $validated = $request->validated();
         $routeStandard = RouteStandard::query()->findOrFail($validated['route_standard_id']);
-        $payload = $this->calculationService->buildPayload($validated, $routeStandard);
+        $payload = $this->calculationService->buildRawPayload($validated, $routeStandard);
         $payload['document_no'] = $transportJob->document_no;
 
         DB::transaction(fn () => $transportJob->update($payload));
@@ -100,9 +105,25 @@ class TransportJobController extends Controller
 
     public function destroy(TransportJob $transportJob): RedirectResponse
     {
-        $transportJob->delete();
+        DB::transaction(fn () => $transportJob->delete());
 
         return redirect()->route('transport-jobs.index')->with('success', 'ลบเที่ยวขนส่งเรียบร้อยแล้ว');
+    }
+
+    public function recalculateAll(): RedirectResponse
+    {
+        $vehicleIds = TransportJob::query()
+            ->whereNull('deleted_at')
+            ->distinct()
+            ->pluck('vehicle_id');
+
+        foreach ($vehicleIds as $vehicleId) {
+            $this->calculationService->recalculateVehicleJobs((int) $vehicleId);
+        }
+
+        return redirect()
+            ->route('transport-jobs.index')
+            ->with('success', 'คำนวณเที่ยวขนส่งใหม่ตามลำดับวันที่ของรถทุกคันเรียบร้อยแล้ว');
     }
 
     private function getFormData(): array
