@@ -16,4 +16,11 @@ if [ ! -f /var/www/html/vendor/autoload.php ] || [ ! -f /var/www/html/vendor/lar
     COMPOSER_ALLOW_SUPERUSER=1 composer install --no-interaction --prefer-dist --optimize-autoloader
 fi
 
+echo "[entrypoint] Preparing Laravel..."
+php artisan optimize:clear --no-interaction || true
+php artisan migrate --force --no-interaction
+php artisan config:cache --no-interaction
+php artisan route:cache --no-interaction
+php artisan view:cache --no-interaction
+
 exec apache2-foreground
