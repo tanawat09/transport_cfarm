@@ -10,6 +10,14 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        if (! User::where('role', 'admin')->exists()) {
+            $firstUser = User::oldest('id')->first();
+
+            if ($firstUser) {
+                $firstUser->forceFill(['role' => 'admin'])->save();
+            }
+        }
+
         $admin = User::firstOrNew(['email' => 'admin@cfarm.local']);
 
         if (! $admin->exists) {
