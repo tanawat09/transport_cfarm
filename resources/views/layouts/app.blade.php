@@ -406,6 +406,7 @@
                     <a class="nav-link {{ request()->routeIs('tire-registrations.report') ? 'active' : '' }}" href="{{ route('tire-registrations.report') }}">รายงานยางใกล้เปลี่ยน</a>
                 </div>
                 @if(auth()->user()?->isAdmin())
+                    <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">จัดการผู้ใช้</a>
                     <a class="nav-link {{ request()->routeIs('vehicle-documents.*') ? 'active' : '' }}" href="{{ route('vehicle-documents.index') }}">ทะเบียน พ.ร.บ. ประกัน</a>
                     <a class="nav-link {{ request()->routeIs('route-standards.*') ? 'active' : '' }}" href="{{ route('route-standards.index') }}">มาตรฐานเส้นทาง</a>
                     <a class="nav-link {{ request()->routeIs('vehicles.*') ? 'active' : '' }}" href="{{ route('vehicles.index') }}">จัดการรถ</a>

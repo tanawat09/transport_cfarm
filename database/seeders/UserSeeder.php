@@ -10,14 +10,15 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::firstOrCreate(
-            ['email' => 'admin@cfarm.local'],
-            [
-                'name' => 'Administrator',
-                'password' => Hash::make('password'),
-                'role' => 'admin',
-            ]
-        );
+        $admin = User::firstOrNew(['email' => 'admin@cfarm.local']);
+
+        if (! $admin->exists) {
+            $admin->password = Hash::make('password');
+        }
+
+        $admin->name = $admin->name ?: 'Administrator';
+        $admin->role = 'admin';
+        $admin->save();
 
         User::firstOrCreate(
             ['email' => 'operator@cfarm.local'],

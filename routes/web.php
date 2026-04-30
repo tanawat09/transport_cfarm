@@ -12,6 +12,7 @@ use App\Http\Controllers\TelegramSettingController;
 use App\Http\Controllers\TireAlertReportController;
 use App\Http\Controllers\TransportJobController;
 use App\Http\Controllers\TransportJobLookupController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleDocumentController;
 use App\Http\Controllers\VehicleUsageLogController;
@@ -68,5 +69,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('farms', FarmController::class)->except(['show']);
         Route::resource('vendors', VendorController::class)->except(['show']);
         Route::resource('route-standards', RouteStandardController::class)->except(['show']);
+        Route::resource('users', UserController::class)->except(['show']);
     });
 });
