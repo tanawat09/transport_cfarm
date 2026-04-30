@@ -41,6 +41,13 @@ Thumbs.db
 /public/storage
 /public/hot
 /storage/fonts/*
+!/bootstrap/cache/.gitignore
+!/storage/logs/.gitignore
+!/storage/framework/cache/.gitignore
+!/storage/framework/cache/data/
+!/storage/framework/cache/data/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
 
 # Local notes
 note.txt
