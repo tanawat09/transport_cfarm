@@ -43,20 +43,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($evaluationItems as $key => $label)
-                                @php
-                                    $statusField = $key . '_status';
-                                    $noteField = $key . '_note';
-                                    $status = $inspection->{$statusField};
-                                @endphp
+                            @foreach($checklistResults as $result)
+                                @php $status = $result['status'] ?? null; @endphp
                                 <tr>
-                                    <td>{{ $label }}</td>
+                                    <td>{{ $result['label'] }}</td>
                                     <td>
                                         <span class="badge {{ $status === \App\Models\PreTripInspection::STATUS_PASS ? 'text-bg-success' : 'text-bg-danger' }}">
                                             {{ $inspection->statusLabel($status) }}
                                         </span>
                                     </td>
-                                    <td>{{ $inspection->{$noteField} ?: '-' }}</td>
+                                    <td>{{ $result['note'] ?: '-' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

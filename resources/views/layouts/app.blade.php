@@ -401,6 +401,11 @@
                 </div>
                 <a class="nav-link {{ request()->routeIs('vehicle-usage-logs.*') ? 'active' : '' }}" href="{{ route('vehicle-usage-logs.index') }}">บันทึกการใช้รถ</a>
                 <a class="nav-link {{ request()->routeIs('pre-trip-inspections.*') ? 'active' : '' }}" href="{{ route('pre-trip-inspections.index') }}">ตรวจเช็กรถก่อนวิ่ง</a>
+                @if(auth()->user()?->isAdmin())
+                    <div class="sidebar-subnav">
+                        <a class="nav-link {{ request()->routeIs('pre-trip-checklist-items.*') ? 'active' : '' }}" href="{{ route('pre-trip-checklist-items.index') }}">ตั้งค่ารายการตรวจเช็ก</a>
+                    </div>
+                @endif
                 <a class="nav-link {{ request()->routeIs('tire-registrations.index') || request()->routeIs('tire-registrations.report') ? 'active' : '' }}" href="{{ route('tire-registrations.index') }}">การจัดการยาง</a>
                 <div class="sidebar-subnav">
                     <a class="nav-link {{ request()->routeIs('tire-registrations.report') ? 'active' : '' }}" href="{{ route('tire-registrations.report') }}">รายงานยางใกล้เปลี่ยน</a>

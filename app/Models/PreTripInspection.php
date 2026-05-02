@@ -23,6 +23,16 @@ class PreTripInspection extends Model
         'tires_and_wheels_status',
     ];
 
+    public const LEGACY_CHECK_KEYS = [
+        'engine_oil_and_fluids',
+        'belt',
+        'lights',
+        'leak',
+        'parking_brake',
+        'pedals_and_steering',
+        'tires_and_wheels',
+    ];
+
     protected $fillable = [
         'inspection_date',
         'inspection_time',
@@ -44,6 +54,7 @@ class PreTripInspection extends Model
         'pedals_and_steering_note',
         'tires_and_wheels_status',
         'tires_and_wheels_note',
+        'checklist_results',
         'is_ready_to_drive',
         'overall_note',
     ];
@@ -54,6 +65,7 @@ class PreTripInspection extends Model
             'inspection_date' => 'date',
             'odometer_km' => 'decimal:2',
             'is_ready_to_drive' => 'boolean',
+            'checklist_results' => 'array',
         ];
     }
 
@@ -67,6 +79,16 @@ class PreTripInspection extends Model
 
     public static function evaluationItems(): array
     {
+        $items = PreTripChecklistItem::query()
+            ->active()
+            ->ordered()
+            ->pluck('label', 'key')
+            ->all();
+
+        if ($items !== []) {
+            return $items;
+        }
+
         return [
             'engine_oil_and_fluids' => 'ตรวจสอบน้ำมันเครื่องและของเหลวให้อยู่ในระดับปกติ',
             'belt' => 'ตรวจสอบสายพาน สภาพ ความตึงหย่อน และเสียงการทำงาน',
@@ -80,6 +102,13 @@ class PreTripInspection extends Model
 
     public static function checkFieldLabel(string $field): string
     {
+        $key = str($field)->beforeLast('_status')->toString();
+        $configuredLabel = PreTripChecklistItem::where('key', $key)->value('label');
+
+        if ($configuredLabel) {
+            return $configuredLabel;
+        }
+
         return [
             'engine_oil_and_fluids_status' => 'น้ำมันเครื่องและของเหลว',
             'belt_status' => 'สายพาน',
@@ -89,6 +118,37 @@ class PreTripInspection extends Model
             'pedals_and_steering_status' => 'แป้นเบรก คลัตช์ คันเร่ง และพวงมาลัย',
             'tires_and_wheels_status' => 'ยางและล้อ',
         ][$field] ?? $field;
+    }
+
+    public function checklistItemsForDisplay(): array
+    {
+        $results = $this->checklist_results;
+
+        if (is_array($results) && $results !== []) {
+            return collect($results)
+                ->map(function (array $result, string $key) {
+                    return [
+                        'key' => $key,
+                        'label' => $result['label'] ?? $key,
+                        'status' => $result['status'] ?? null,
+                        'note' => $result['note'] ?? null,
+                    ];
+                })
+                ->values()
+                ->all();
+        }
+
+        return collect(self::evaluationItems())
+            ->map(function (string $label, string $key) {
+                return [
+                    'key' => $key,
+                    'label' => $label,
+                    'status' => $this->{$key . '_status'},
+                    'note' => $this->{$key . '_note'},
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     public function vehicle(): BelongsTo
@@ -106,7 +166,7 @@ class PreTripInspection extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function statusLabel(string $value): string
+    public function statusLabel(?string $value): string
     {
         return self::statusOptions()[$value] ?? $value;
     }

@@ -91,44 +91,49 @@
         </div>
 
         <div class="d-grid gap-3">
-            @foreach($evaluationItems as $key => $label)
+            @foreach($checklistItems as $item)
                 @php
-                    $statusField = $key . '_status';
-                    $noteField = $key . '_note';
-                    $currentStatus = old($statusField, $inspection->{$statusField});
+                    $key = $item->key;
+                    $statusField = "inspection_items.{$key}.status";
+                    $noteField = "inspection_items.{$key}.note";
+                    $legacyStatusField = $key . '_status';
+                    $legacyNoteField = $key . '_note';
+                    $storedResult = $inspection->checklist_results[$key] ?? [];
+                    $currentStatus = old($statusField, $storedResult['status'] ?? $inspection->{$legacyStatusField});
+                    $currentNote = old($noteField, $storedResult['note'] ?? $inspection->{$legacyNoteField});
                 @endphp
                 <div class="border rounded-3 p-3">
                     <div class="row g-3 align-items-start">
                         <div class="col-lg-7">
-                            <label class="form-label fw-semibold">{{ $label }}</label>
+                            <label class="form-label fw-semibold">{{ $item->label }}</label>
                         </div>
                         <div class="col-lg-2">
                             <div class="inspection-choice-group">
                                 <input
                                     class="inspection-choice-input inspection-status"
                                     type="radio"
-                                    name="{{ $statusField }}"
-                                    id="{{ $statusField }}_pass"
+                                    name="inspection_items[{{ $key }}][status]"
+                                    id="inspection_{{ $key }}_pass"
                                     value="{{ \App\Models\PreTripInspection::STATUS_PASS }}"
                                     @checked($currentStatus === \App\Models\PreTripInspection::STATUS_PASS)
                                     required
                                 >
-                                <label class="inspection-choice-label pass" for="{{ $statusField }}_pass">ผ่าน</label>
+                                <label class="inspection-choice-label pass" for="inspection_{{ $key }}_pass">ผ่าน</label>
 
                                 <input
                                     class="inspection-choice-input inspection-status"
                                     type="radio"
-                                    name="{{ $statusField }}"
-                                    id="{{ $statusField }}_fail"
+                                    name="inspection_items[{{ $key }}][status]"
+                                    id="inspection_{{ $key }}_fail"
                                     value="{{ \App\Models\PreTripInspection::STATUS_FAIL }}"
                                     @checked($currentStatus === \App\Models\PreTripInspection::STATUS_FAIL)
                                     required
                                 >
-                                <label class="inspection-choice-label fail" for="{{ $statusField }}_fail">ไม่ผ่าน</label>
+                                <label class="inspection-choice-label fail" for="inspection_{{ $key }}_fail">ไม่ผ่าน</label>
                             </div>
                         </div>
                         <div class="col-lg-3">
-                            <input type="text" name="{{ $noteField }}" value="{{ old($noteField, $inspection->{$noteField}) }}" class="form-control" placeholder="หมายเหตุ">
+                            <input type="text" name="inspection_items[{{ $key }}][note]" value="{{ $currentNote }}" class="form-control" placeholder="หมายเหตุ">
                         </div>
                     </div>
                 </div>

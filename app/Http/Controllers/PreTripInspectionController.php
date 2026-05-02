@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PreTripInspectionRequest;
 use App\Models\Driver;
+use App\Models\PreTripChecklistItem;
 use App\Models\PreTripInspection;
 use App\Models\Vehicle;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -41,7 +42,7 @@ class PreTripInspectionController extends Controller
                     'driver_id' => $selectedVehicle?->primary_driver_id,
                 ]),
                 'statusOptions' => PreTripInspection::statusOptions(),
-                'evaluationItems' => PreTripInspection::evaluationItems(),
+                'checklistItems' => $this->checklistItems(),
                 'lockedVehicle' => $selectedVehicle,
             ]
         ));
@@ -71,7 +72,7 @@ class PreTripInspectionController extends Controller
 
         return view('pre-trip-inspections.show', [
             'inspection' => $preTripInspection,
-            'evaluationItems' => PreTripInspection::evaluationItems(),
+            'checklistResults' => $preTripInspection->checklistItemsForDisplay(),
         ]);
     }
 
@@ -82,7 +83,7 @@ class PreTripInspectionController extends Controller
             [
                 'inspection' => $preTripInspection,
                 'statusOptions' => PreTripInspection::statusOptions(),
-                'evaluationItems' => PreTripInspection::evaluationItems(),
+                'checklistItems' => $this->checklistItems(),
             ]
         ));
     }
@@ -135,12 +136,24 @@ class PreTripInspectionController extends Controller
         $readyCount = (clone $summaryQuery)->where('is_ready_to_drive', true)->count();
         $notReadyCount = (clone $summaryQuery)->where('is_ready_to_drive', false)->count();
 
-        $checkFailureStats = collect(PreTripInspection::CHECK_FIELDS)
-            ->map(function (string $field) use ($summaryQuery) {
+        $summaryInspections = (clone $summaryQuery)->get();
+
+        $checkFailureStats = $this->checklistItems()
+            ->map(function (PreTripChecklistItem $item) use ($summaryInspections) {
+                $field = $item->key . '_status';
+
                 return [
                     'field' => $field,
-                    'label' => PreTripInspection::checkFieldLabel($field),
-                    'count' => (clone $summaryQuery)->where($field, PreTripInspection::STATUS_FAIL)->count(),
+                    'label' => $item->label,
+                    'count' => $summaryInspections->filter(function (PreTripInspection $inspection) use ($field, $item) {
+                        $results = $inspection->checklist_results ?? [];
+
+                        if (isset($results[$item->key]['status'])) {
+                            return $results[$item->key]['status'] === PreTripInspection::STATUS_FAIL;
+                        }
+
+                        return $inspection->{$field} === PreTripInspection::STATUS_FAIL;
+                    })->count(),
                 ];
             })
             ->sortByDesc('count')
@@ -166,11 +179,37 @@ class PreTripInspectionController extends Controller
 
     private function buildPayload(array $validated): array
     {
+        $items = $this->checklistItems();
+        $inspectionItems = collect($validated['inspection_items'] ?? []);
+        $results = [];
+
+        foreach ($items as $item) {
+            $input = $inspectionItems->get($item->key, []);
+            $results[$item->key] = [
+                'label' => $item->label,
+                'status' => $input['status'] ?? null,
+                'note' => $input['note'] ?? null,
+            ];
+        }
+
         $validated['user_id'] = auth()->id();
-        $validated['is_ready_to_drive'] = collect(PreTripInspection::CHECK_FIELDS)
-            ->every(fn (string $field) => ($validated[$field] ?? null) === PreTripInspection::STATUS_PASS);
+        $validated['checklist_results'] = $results;
+        $validated['is_ready_to_drive'] = collect($results)
+            ->every(fn (array $result) => ($result['status'] ?? null) === PreTripInspection::STATUS_PASS);
+
+        foreach (PreTripInspection::LEGACY_CHECK_KEYS as $key) {
+            $validated[$key . '_status'] = $results[$key]['status'] ?? null;
+            $validated[$key . '_note'] = $results[$key]['note'] ?? null;
+        }
+
+        unset($validated['inspection_items']);
 
         return $validated;
+    }
+
+    private function checklistItems()
+    {
+        return PreTripChecklistItem::query()->active()->ordered()->get();
     }
 
     private function tractorVehicleType(): string

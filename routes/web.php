@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\FarmController;
 use App\Http\Controllers\PreTripInspectionController;
+use App\Http\Controllers\PreTripChecklistItemController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RouteStandardController;
 use App\Http\Controllers\TireRegistrationController;
@@ -64,6 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/telegram-settings', [TelegramSettingController::class, 'edit'])->name('telegram-settings.edit');
         Route::post('/telegram-settings', [TelegramSettingController::class, 'update'])->name('telegram-settings.update');
         Route::post('/telegram-settings/test', [TelegramSettingController::class, 'test'])->name('telegram-settings.test');
+        Route::resource('pre-trip-checklist-items', PreTripChecklistItemController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('vehicles', VehicleController::class)->except(['show']);
         Route::resource('drivers', DriverController::class)->except(['show']);
         Route::resource('farms', FarmController::class)->except(['show']);
