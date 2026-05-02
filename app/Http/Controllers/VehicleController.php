@@ -52,7 +52,7 @@ class VehicleController extends Controller
         return view('vehicles.create', [
             'vehicle' => new Vehicle(),
             'drivers' => $this->getActiveDrivers(),
-            'towingVehicles' => $this->getTowingVehicles(),
+            'semiTrailerVehicles' => $this->getSemiTrailerVehicles(),
         ]);
     }
 
@@ -68,7 +68,7 @@ class VehicleController extends Controller
         return view('vehicles.edit', [
             'vehicle' => $vehicle,
             'drivers' => $this->getActiveDrivers(),
-            'towingVehicles' => $this->getTowingVehicles($vehicle),
+            'semiTrailerVehicles' => $this->getSemiTrailerVehicles($vehicle),
         ]);
     }
 
@@ -182,13 +182,13 @@ class VehicleController extends Controller
             ->get();
     }
 
-    private function getTowingVehicles(?Vehicle $currentVehicle = null)
+    private function getSemiTrailerVehicles(?Vehicle $currentVehicle = null)
     {
         return Vehicle::query()
-            ->where('vehicle_type', 'ลากจูง')
+            ->where('vehicle_type', 'รถกึ่งพ่วงบรรทุกอาหารสัตว์')
             ->where('status', 'active')
             ->when($currentVehicle, fn ($query) => $query->whereKeyNot($currentVehicle->id))
             ->orderBy('registration_number')
-            ->get(['id', 'registration_number']);
+            ->get(['id', 'registration_number', 'vehicle_type', 'brand', 'model']);
     }
 }
