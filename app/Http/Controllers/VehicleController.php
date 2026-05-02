@@ -185,9 +185,22 @@ class VehicleController extends Controller
     private function getSemiTrailerVehicles(?Vehicle $currentVehicle = null)
     {
         return Vehicle::query()
-            ->where('vehicle_type', 'รถกึ่งพ่วงบรรทุกอาหารสัตว์')
-            ->where('status', 'active')
-            ->when($currentVehicle, fn ($query) => $query->whereKeyNot($currentVehicle->id))
+            ->where(function ($query) use ($currentVehicle) {
+                $query->where(function ($semiTrailerQuery) use ($currentVehicle) {
+                    $semiTrailerQuery
+                        ->where(function ($typeQuery) {
+                            $typeQuery->where('vehicle_type', Vehicle::TYPE_SEMI_TRAILER_FEED)
+                                ->orWhere('vehicle_type', 'like', '%กึ่งพ่วง%')
+                                ->orWhere('vehicle_type', 'like', '%อาหารสัตว์%');
+                        })
+                        ->where('status', 'active')
+                        ->when($currentVehicle, fn ($currentQuery) => $currentQuery->whereKeyNot($currentVehicle->id));
+                });
+
+                if ($currentVehicle && filled($currentVehicle->towing_vehicle)) {
+                    $query->orWhere('registration_number', $currentVehicle->towing_vehicle);
+                }
+            })
             ->orderBy('registration_number')
             ->get(['id', 'registration_number', 'vehicle_type', 'brand', 'model']);
     }

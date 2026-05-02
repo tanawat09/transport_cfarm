@@ -35,11 +35,13 @@
         <label class="form-label">ทะเบียนรถกึ่งพ่วงบรรทุกอาหารสัตว์</label>
         <select name="towing_vehicle" class="form-select">
             <option value="">เลือกทะเบียนรถกึ่งพ่วงบรรทุกอาหารสัตว์</option>
-            @foreach($semiTrailerVehicles as $semiTrailerVehicle)
+            @forelse($semiTrailerVehicles as $semiTrailerVehicle)
                 <option value="{{ $semiTrailerVehicle->registration_number }}" @selected(old('towing_vehicle', $vehicle->towing_vehicle) === $semiTrailerVehicle->registration_number)>
                     {{ $semiTrailerVehicle->registration_number }} - {{ $semiTrailerVehicle->vehicle_type }}{{ $semiTrailerVehicle->brand ? ' - ' . $semiTrailerVehicle->brand : '' }}{{ $semiTrailerVehicle->model ? ' / ' . $semiTrailerVehicle->model : '' }}
                 </option>
-            @endforeach
+            @empty
+                <option value="" disabled>ยังไม่มีทะเบียนรถกึ่งพ่วงบรรทุกอาหารสัตว์ที่ใช้งานอยู่</option>
+            @endforelse
         </select>
         <div class="form-text">เลือกทะเบียนรถกึ่งพ่วงบรรทุกอาหารสัตว์ที่ใช้งานคู่กับรถลากจูงคันนี้</div>
     </div>

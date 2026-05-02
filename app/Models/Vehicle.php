@@ -13,6 +13,9 @@ class Vehicle extends Model
     use HasFactory;
     use SoftDeletes;
 
+    public const TYPE_SEMI_TRAILER_FEED = 'รถกึ่งพ่วงบรรทุกอาหารสัตว์';
+    public const TYPE_TRACTOR = 'ลากจูง';
+
     public const USAGE_LOG_VEHICLE_TYPES = [
         'รถยนต์นั่งส่วนบุคคลไม่เกิน 7 คน',
         'รถยนต์บรรทุกส่วนบุคคล',
