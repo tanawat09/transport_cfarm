@@ -44,7 +44,7 @@ class VehicleController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('vehicles.index', compact('vehicles', 'vehicleTypes'));
+        return view('vehicles.index-modern', compact('vehicles', 'vehicleTypes'));
     }
 
     public function create(): View
