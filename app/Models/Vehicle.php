@@ -77,6 +77,11 @@ class Vehicle extends Model
         return $this->hasMany(VehicleDocument::class);
     }
 
+    public function qrTokens(): HasMany
+    {
+        return $this->hasMany(VehicleQrToken::class);
+    }
+
     public function primaryDriver(): BelongsTo
     {
         return $this->belongsTo(Driver::class, 'primary_driver_id');
@@ -84,12 +89,12 @@ class Vehicle extends Model
 
     public function inspectionQrUrl(): string
     {
-        return url('/pre-trip-inspections/create?vehicle_id=' . $this->id);
+        return $this->issueQrToken(VehicleQrToken::TYPE_INSPECTION)->publicUrl();
     }
 
     public function usageLogQrUrl(): string
     {
-        return url('/vehicle-usage-logs/create?vehicle_id=' . $this->id);
+        return $this->issueQrToken(VehicleQrToken::TYPE_USAGE)->publicUrl();
     }
 
     public function supportsUsageLog(): bool
@@ -100,5 +105,16 @@ class Vehicle extends Model
     public function supportsPreTripInspectionQr(): bool
     {
         return ! in_array($this->vehicle_type, self::PRE_TRIP_INSPECTION_QR_EXCLUDED_TYPES, true);
+    }
+
+    public function issueQrToken(string $accessType): VehicleQrToken
+    {
+        return VehicleQrToken::issueFor($this, $accessType);
+    }
+
+    public function qrTokenFor(string $accessType): ?VehicleQrToken
+    {
+        return $this->qrTokens->firstWhere('access_type', $accessType)
+            ?? $this->qrTokens()->where('access_type', $accessType)->first();
     }
 }

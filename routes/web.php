@@ -6,6 +6,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\FarmController;
 use App\Http\Controllers\PreTripInspectionController;
 use App\Http\Controllers\PreTripChecklistItemController;
+use App\Http\Controllers\PublicVehicleQrController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RouteStandardController;
 use App\Http\Controllers\TireRegistrationController;
@@ -25,6 +26,15 @@ Route::redirect('/', '/dashboard');
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
+});
+
+Route::prefix('public/vehicle-qr')->middleware('throttle:20,1')->group(function () {
+    Route::get('/{token}', [PublicVehicleQrController::class, 'showChallenge'])->name('public.vehicle-qr.access');
+    Route::post('/{token}/verify-pin', [PublicVehicleQrController::class, 'verifyPin'])->name('public.vehicle-qr.verify-pin');
+    Route::get('/{token}/inspection', [PublicVehicleQrController::class, 'showInspectionForm'])->name('public.vehicle-qr.inspection.form');
+    Route::post('/{token}/inspection', [PublicVehicleQrController::class, 'storeInspection'])->name('public.vehicle-qr.inspection.store');
+    Route::get('/{token}/usage', [PublicVehicleQrController::class, 'showUsageForm'])->name('public.vehicle-qr.usage.form');
+    Route::post('/{token}/usage', [PublicVehicleQrController::class, 'storeUsageLog'])->name('public.vehicle-qr.usage.store');
 });
 
 Route::middleware('auth')->group(function () {
@@ -61,6 +71,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/vehicles/{vehicle}/usage-qr', [VehicleController::class, 'usageQrPage'])->name('vehicles.usage-qr-page');
         Route::get('/vehicles/{vehicle}/usage-qr/print', [VehicleController::class, 'usageQrPrint'])->name('vehicles.usage-qr-print');
         Route::get('/vehicles/{vehicle}/usage-qr.svg', [VehicleController::class, 'usageQrCode'])->name('vehicles.usage-qr-code');
+        Route::post('/vehicles/{vehicle}/qr-token/{accessType}/toggle', [VehicleController::class, 'toggleQrToken'])->name('vehicles.qr-token.toggle');
+        Route::post('/vehicles/{vehicle}/qr-token/{accessType}/regenerate', [VehicleController::class, 'regenerateQrToken'])->name('vehicles.qr-token.regenerate');
         Route::resource('vehicle-documents', VehicleDocumentController::class)->except(['show']);
         Route::get('/telegram-settings', [TelegramSettingController::class, 'edit'])->name('telegram-settings.edit');
         Route::post('/telegram-settings', [TelegramSettingController::class, 'update'])->name('telegram-settings.update');

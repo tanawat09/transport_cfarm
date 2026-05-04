@@ -12,16 +12,16 @@ services:
     env_file:
       - .env
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
-      APP_URL: https://transport-cfarm.chuwitfarm.com
+      APP_ENV: ${DOCKER_APP_ENV:-local}
+      APP_DEBUG: ${DOCKER_APP_DEBUG:-true}
+      APP_URL: ${DOCKER_APP_URL:-http://127.0.0.1:2020}
       DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: 3306
       DB_DATABASE: transport_cfarm
       DB_USERNAME: itadmin
       DB_PASSWORD: Noipalee@09
-      SESSION_SECURE_COOKIE: "true"
+      SESSION_SECURE_COOKIE: ${DOCKER_SESSION_SECURE_COOKIE:-false}
       SESSION_SAME_SITE: lax
     working_dir: /var/www/html
 

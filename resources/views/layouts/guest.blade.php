@@ -15,10 +15,13 @@
         }
         .login-card { border: 0; border-radius: 1.25rem; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
     </style>
+    @stack('styles')
 </head>
 <body>
     <div class="container">
         @yield('content')
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>

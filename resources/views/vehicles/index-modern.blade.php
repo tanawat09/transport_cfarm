@@ -45,9 +45,23 @@
         white-space: nowrap;
     }
 
-    .vehicle-qr-card {
-        border-color: rgba(31, 111, 120, .18);
-        background: linear-gradient(135deg, rgba(31, 111, 120, .08), rgba(255, 255, 255, .96) 42%);
+    .vehicle-qr-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .vehicle-qr-toolbar .form-select {
+        width: 170px;
+        min-width: 170px;
+        min-height: 40px;
+    }
+
+    .vehicle-qr-toolbar .btn {
+        min-height: 40px;
+        padding-inline: 16px;
     }
 
     .selected-count {
@@ -182,8 +196,14 @@
         }
 
         .vehicle-add-button,
-        .vehicle-qr-card .btn {
+        .vehicle-qr-toolbar .btn,
+        .vehicle-qr-toolbar .form-select {
             width: 100%;
+        }
+
+        .vehicle-qr-toolbar {
+            align-items: stretch;
+            flex-direction: column;
         }
     }
 </style>
@@ -223,30 +243,14 @@
     </div>
 </div>
 
-<div class="card vehicle-qr-card mb-4">
-    <div class="card-body">
-        <form method="GET" action="{{ route('vehicles.qr-print-bulk') }}" target="_blank" id="bulk-qr-form" class="row g-3 align-items-end">
-            <div class="col-lg-4">
-                <h2 class="vehicle-section-title">พิมพ์ QR หลายคัน</h2>
-                <p class="vehicle-section-subtitle">ติ๊กเลือกรถจากตาราง แล้วเลือกประเภท QR ที่ต้องการพิมพ์</p>
-            </div>
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label" for="qr-type">ประเภท QR</label>
-                <select id="qr-type" name="qr_type" class="form-select">
-                    <option value="inspection">QR ตรวจรถ</option>
-                    <option value="usage">QR ใช้รถ</option>
-                </select>
-            </div>
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label d-block">จำนวนที่เลือก</label>
-                <span class="selected-count" id="selected-vehicle-count">0 คัน</span>
-            </div>
-            <div class="col-md-4 col-lg-2 text-md-end">
-                <button type="submit" class="btn btn-dark">พิมพ์ QR</button>
-            </div>
-        </form>
-    </div>
-</div>
+<form method="GET" action="{{ route('vehicles.qr-print-bulk') }}" target="_blank" id="bulk-qr-form" class="vehicle-qr-toolbar">
+    <span class="selected-count" id="selected-vehicle-count">0 คัน</span>
+    <select id="qr-type" name="qr_type" class="form-select" aria-label="ประเภท QR">
+        <option value="inspection">QR ตรวจรถ</option>
+        <option value="usage">QR ใช้รถ</option>
+    </select>
+    <button type="submit" class="btn btn-dark">พิมพ์ QR หลายคัน</button>
+</form>
 
 <div class="card vehicle-list-card">
     <div class="vehicle-list-header">

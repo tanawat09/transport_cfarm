@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\VehicleRequest;
 use App\Models\Driver;
 use App\Models\Vehicle;
+use App\Models\VehicleQrAccessLog;
+use App\Models\VehicleQrToken;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use Illuminate\Contracts\View\View;
@@ -76,14 +78,14 @@ class VehicleController extends Controller
     {
         abort_unless($vehicle->supportsPreTripInspectionQr(), 404);
 
-        return view('vehicles.qr', compact('vehicle'));
+        return view('vehicles.qr', $this->qrViewData($vehicle, VehicleQrToken::TYPE_INSPECTION));
     }
 
     public function inspectionQrPrint(Vehicle $vehicle): View
     {
         abort_unless($vehicle->supportsPreTripInspectionQr(), 404);
 
-        return view('vehicles.qr-print', compact('vehicle'));
+        return view('vehicles.qr-print', $this->qrViewData($vehicle, VehicleQrToken::TYPE_INSPECTION));
     }
 
     public function bulkQrPrint(Request $request): View|RedirectResponse
@@ -119,28 +121,55 @@ class VehicleController extends Controller
     {
         abort_unless($vehicle->supportsUsageLog(), 404);
 
-        return view('vehicles.usage-qr', compact('vehicle'));
+        return view('vehicles.usage-qr', $this->qrViewData($vehicle, VehicleQrToken::TYPE_USAGE));
     }
 
     public function usageQrPrint(Vehicle $vehicle): View
     {
         abort_unless($vehicle->supportsUsageLog(), 404);
 
-        return view('vehicles.usage-qr-print', compact('vehicle'));
+        return view('vehicles.usage-qr-print', $this->qrViewData($vehicle, VehicleQrToken::TYPE_USAGE));
     }
 
     public function inspectionQrCode(Vehicle $vehicle): Response
     {
         abort_unless($vehicle->supportsPreTripInspectionQr(), 404);
 
-        return $this->qrResponse($vehicle->inspectionQrUrl());
+        return $this->qrResponse($vehicle->issueQrToken(VehicleQrToken::TYPE_INSPECTION)->publicUrl());
     }
 
     public function usageQrCode(Vehicle $vehicle): Response
     {
         abort_unless($vehicle->supportsUsageLog(), 404);
 
-        return $this->qrResponse($vehicle->usageLogQrUrl());
+        return $this->qrResponse($vehicle->issueQrToken(VehicleQrToken::TYPE_USAGE)->publicUrl());
+    }
+
+    public function toggleQrToken(Request $request, Vehicle $vehicle, string $accessType): RedirectResponse
+    {
+        abort_unless($this->isSupportedQrType($vehicle, $accessType), 404);
+
+        $qrToken = $vehicle->issueQrToken($accessType);
+        $qrToken->update(['is_active' => ! $qrToken->is_active]);
+
+        $this->recordAdminQrEvent($qrToken, $qrToken->is_active
+            ? VehicleQrAccessLog::EVENT_TOKEN_ENABLED
+            : VehicleQrAccessLog::EVENT_TOKEN_DISABLED);
+
+        return back()->with('success', $qrToken->is_active
+            ? 'เปิดใช้งาน QR เรียบร้อยแล้ว'
+            : 'ปิดใช้งาน QR เรียบร้อยแล้ว');
+    }
+
+    public function regenerateQrToken(Request $request, Vehicle $vehicle, string $accessType): RedirectResponse
+    {
+        abort_unless($this->isSupportedQrType($vehicle, $accessType), 404);
+
+        $qrToken = $vehicle->issueQrToken($accessType);
+        $newPin = $qrToken->regenerate()['plain_pin'];
+        $this->recordAdminQrEvent($qrToken, VehicleQrAccessLog::EVENT_TOKEN_REGENERATED);
+
+        return back()->with('success', "สร้าง QR ใหม่เรียบร้อยแล้ว รหัส PIN ใหม่คือ {$newPin}");
     }
 
     private function qrResponse(string $url): Response
@@ -203,5 +232,41 @@ class VehicleController extends Controller
             })
             ->orderBy('registration_number')
             ->get(['id', 'registration_number', 'vehicle_type', 'brand', 'model']);
+    }
+
+    private function qrViewData(Vehicle $vehicle, string $accessType): array
+    {
+        $qrToken = $vehicle->issueQrToken($accessType);
+
+        return [
+            'vehicle' => $vehicle,
+            'qrToken' => $qrToken,
+            'recentQrLogs' => $qrToken->accessLogs()->latest('happened_at')->limit(10)->get(),
+        ];
+    }
+
+    private function isSupportedQrType(Vehicle $vehicle, string $accessType): bool
+    {
+        return match ($accessType) {
+            VehicleQrToken::TYPE_INSPECTION => $vehicle->supportsPreTripInspectionQr(),
+            VehicleQrToken::TYPE_USAGE => $vehicle->supportsUsageLog(),
+            default => false,
+        };
+    }
+
+    private function recordAdminQrEvent(VehicleQrToken $qrToken, string $eventType): void
+    {
+        VehicleQrAccessLog::create([
+            'vehicle_qr_token_id' => $qrToken->id,
+            'vehicle_id' => $qrToken->vehicle_id,
+            'access_type' => $qrToken->access_type,
+            'event_type' => $eventType,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'payload' => [
+                'admin_user_id' => auth()->id(),
+            ],
+            'happened_at' => now(),
+        ]);
     }
 }
