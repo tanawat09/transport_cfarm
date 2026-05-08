@@ -51,17 +51,65 @@
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
         }
 
+        .app-topbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .app-topbar-start,
+        .app-topbar-end {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .app-menu-toggle {
+            display: none;
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            line-height: 1;
+        }
+
+        .app-menu-toggle span,
+        .app-menu-toggle::before,
+        .app-menu-toggle::after {
+            content: '';
+            display: block;
+            width: 18px;
+            height: 2px;
+            border-radius: 999px;
+            background: currentColor;
+        }
+
+        .app-menu-toggle {
+            flex-direction: column;
+            gap: 4px;
+        }
+
         .app-brand {
             color: #fff;
             text-decoration: none;
             display: inline-flex;
             flex-direction: column;
             gap: 2px;
+            min-width: 0;
         }
 
         .app-brand-title {
             font-size: 1.05rem;
             font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .app-brand-subtitle {
@@ -91,6 +139,14 @@
             align-items: start;
         }
 
+        .app-content {
+            min-width: 0;
+        }
+
+        .app-sidebar-overlay {
+            display: none;
+        }
+
         .app-sidebar {
             position: static;
             min-height: calc(100vh - 118px);
@@ -99,6 +155,10 @@
             color: #fff;
             background: var(--sidebar-bg);
             box-shadow: 0 22px 40px rgba(15, 23, 42, 0.18);
+        }
+
+        .app-sidebar-close {
+            display: none;
         }
 
         .sidebar-heading {
@@ -303,6 +363,13 @@
             border-color: rgba(148, 163, 184, 0.15);
         }
 
+        .table-responsive {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .table-hover tbody tr:hover {
             background: rgba(31, 111, 120, 0.04);
         }
@@ -329,38 +396,183 @@
         }
 
         @media (max-width: 1199.98px) {
+            body.is-sidebar-open {
+                overflow: hidden;
+            }
+
+            .app-menu-toggle {
+                display: inline-flex;
+                flex: 0 0 auto;
+            }
+
             .app-grid {
                 grid-template-columns: 1fr;
+                gap: 18px;
             }
 
             .app-sidebar {
-                position: static;
-                min-height: auto;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1060;
+                width: min(86vw, 330px);
+                height: 100vh;
+                min-height: 0;
+                overflow-y: auto;
+                border-radius: 0 26px 26px 0;
+                transform: translateX(-105%);
+                transition: transform .22s ease;
             }
 
-            .sidebar-nav {
-                flex-direction: row;
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                padding-bottom: 4px;
+            body.is-sidebar-open .app-sidebar {
+                transform: translateX(0);
             }
 
-            .sidebar-nav .nav-link {
-                white-space: nowrap;
+            .app-sidebar-overlay {
+                display: block;
+                position: fixed;
+                inset: 0;
+                z-index: 1050;
+                background: rgba(15, 23, 42, 0.46);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .18s ease;
+            }
+
+            body.is-sidebar-open .app-sidebar-overlay {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .app-sidebar-close {
+                display: inline-flex;
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                width: 38px;
+                height: 38px;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+                font-size: 1.25rem;
+                line-height: 1;
+            }
+
+            .sidebar-heading {
+                padding-right: 42px;
             }
         }
 
         @media (max-width: 767.98px) {
+            .app-topbar {
+                position: static;
+            }
+
+            .app-topbar-inner {
+                padding-left: 14px !important;
+                padding-right: 14px !important;
+                flex-wrap: wrap;
+            }
+
+            .app-topbar-start {
+                flex: 1 1 100%;
+            }
+
+            .app-topbar-end {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .app-user-chip {
+                min-width: 0;
+                padding: 7px 10px;
+                font-size: .82rem;
+            }
+
+            .app-user-chip span {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
             .app-shell {
                 padding: 14px;
             }
 
+            .app-grid {
+                gap: 14px;
+            }
+
             .page-header-card {
-                padding: 18px;
+                margin-bottom: 16px;
+                padding: 16px;
+                border-radius: 18px;
+            }
+
+            .page-kicker {
+                margin-bottom: 8px;
+                padding: 5px 10px;
+                font-size: .74rem;
             }
 
             .page-title {
                 font-size: 1.45rem;
+            }
+
+            .page-subtitle {
+                font-size: .88rem;
+            }
+
+            .card,
+            .content-card,
+            .stat-card,
+            .metric-card {
+                border-radius: 16px;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 1rem;
+            }
+
+            .btn {
+                min-height: 42px;
+            }
+
+            .table > :not(caption) > * > * {
+                padding: .75rem .8rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .app-brand-title {
+                font-size: .95rem;
+            }
+
+            .app-brand-subtitle {
+                font-size: .68rem;
+            }
+
+            .app-shell {
+                padding: 10px;
+            }
+
+            .page-header-card {
+                padding: 14px;
+            }
+
+            .page-title {
+                font-size: 1.28rem;
+            }
+
+            .form-control,
+            .form-select,
+            textarea.form-control {
+                min-height: 44px;
             }
         }
     </style>
@@ -368,12 +580,17 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg app-topbar">
-    <div class="container-fluid px-4 py-2">
-        <a class="app-brand" href="{{ route('dashboard') }}">
-            <span class="app-brand-title">ระบบบริหารรถขนส่งอาหารไก่</span>
-            <span class="app-brand-subtitle">Transport Management Center</span>
-        </a>
-        <div class="d-flex align-items-center gap-2">
+    <div class="container-fluid px-4 py-2 app-topbar-inner">
+        <div class="app-topbar-start">
+            <button type="button" class="app-menu-toggle" data-sidebar-toggle aria-label="เปิดเมนูการทำงาน" aria-controls="app-sidebar" aria-expanded="false">
+                <span></span>
+            </button>
+            <a class="app-brand" href="{{ route('dashboard') }}">
+                <span class="app-brand-title">ระบบบริหารรถขนส่งอาหารไก่</span>
+                <span class="app-brand-subtitle">Transport Management Center</span>
+            </a>
+        </div>
+        <div class="app-topbar-end">
             <div class="app-user-chip">
                 <span>{{ auth()->user()->name ?? '' }}</span>
                 <span>{{ auth()->user()->role ?? '' }}</span>
@@ -385,9 +602,11 @@
         </div>
     </div>
 </nav>
+<div class="app-sidebar-overlay" data-sidebar-close></div>
 <div class="app-shell">
     <div class="app-grid">
-        <aside class="app-sidebar">
+        <aside class="app-sidebar" id="app-sidebar">
+            <button type="button" class="app-sidebar-close" data-sidebar-close aria-label="ปิดเมนูการทำงาน">&times;</button>
             <div class="sidebar-heading">
                 <strong>เมนูการทำงาน</strong>
                 <span>เข้าถึงงานหลักของระบบได้จากจุดเดียว</span>
@@ -436,6 +655,41 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleButtons = document.querySelectorAll('[data-sidebar-toggle]');
+    const closeButtons = document.querySelectorAll('[data-sidebar-close]');
+
+    const setSidebarOpen = (isOpen) => {
+        document.body.classList.toggle('is-sidebar-open', isOpen);
+        toggleButtons.forEach((button) => {
+            button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+    };
+
+    toggleButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            setSidebarOpen(!document.body.classList.contains('is-sidebar-open'));
+        });
+    });
+
+    closeButtons.forEach((button) => {
+        button.addEventListener('click', () => setSidebarOpen(false));
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            setSidebarOpen(false);
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1200) {
+            setSidebarOpen(false);
+        }
+    });
+});
+</script>
 @stack('scripts')
 </body>
 </html>

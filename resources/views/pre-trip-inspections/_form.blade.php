@@ -9,11 +9,13 @@
 <style>
     .inspection-shell {
         display: block;
+        min-width: 0;
     }
 
     .inspection-main {
         display: grid;
         gap: 1.25rem;
+        min-width: 0;
     }
 
     .inspection-panel {
@@ -22,6 +24,8 @@
         background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 251, 253, 0.98) 100%);
         box-shadow: 0 18px 32px rgba(15, 23, 42, 0.06);
+        min-width: 0;
+        overflow: hidden;
     }
 
     .inspection-panel-body {
@@ -39,6 +43,7 @@
         margin: .4rem 0 0;
         color: #728295;
         font-size: .92rem;
+        line-height: 1.6;
     }
 
     .inspection-meta-grid {
@@ -53,6 +58,7 @@
         border: 1px solid rgba(148, 163, 184, 0.16);
         border-radius: 18px;
         background: rgba(255, 255, 255, 0.78);
+        min-width: 0;
     }
 
     .inspection-field-card.col-span-3 { grid-column: span 3; }
@@ -112,6 +118,7 @@
         margin-top: .35rem;
         color: rgba(255, 255, 255, 0.76);
         font-size: .82rem;
+        overflow-wrap: anywhere;
     }
 
     .inspection-checklist-header {
@@ -162,6 +169,7 @@
         border-radius: 20px;
         background: rgba(255, 255, 255, 0.84);
         transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        min-width: 0;
     }
 
     .inspection-item-card:hover {
@@ -206,12 +214,14 @@
         font-size: 1rem;
         font-weight: 800;
         color: #1d2939;
+        overflow-wrap: anywhere;
     }
 
     .inspection-item-help {
         margin: .3rem 0 0;
         color: #77879a;
         font-size: .87rem;
+        line-height: 1.55;
     }
 
     .inspection-item-status-text {
@@ -226,6 +236,7 @@
         grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
         gap: 1rem;
         align-items: center;
+        min-width: 0;
     }
 
     .inspection-choice-group {
@@ -255,6 +266,7 @@
         color: #243446;
         transition: all .15s ease-in-out;
         box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.03);
+        width: 100%;
     }
 
     .inspection-choice-label:hover {
@@ -291,11 +303,24 @@
 
     .inspection-note-input {
         min-height: 54px;
+        width: 100%;
     }
 
     .inspection-overall-note {
         min-height: 130px;
         resize: vertical;
+        width: 100%;
+    }
+
+    .inspection-field-card .form-control,
+    .inspection-field-card .form-select,
+    .inspection-item-card .form-control {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .inspection-item-top > .d-flex {
+        min-width: 0;
     }
 
     @media (max-width: 991.98px) {
@@ -312,6 +337,7 @@
 
         .inspection-item-grid {
             grid-template-columns: 1fr;
+            gap: .85rem;
         }
     }
 
@@ -395,6 +421,7 @@
 
         .inspection-choice-group {
             grid-template-columns: 1fr;
+            gap: .6rem;
         }
 
         .inspection-choice-label {
@@ -406,6 +433,100 @@
         .inspection-note-input,
         .inspection-overall-note {
             border-radius: 14px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .inspection-panel {
+            border-radius: 16px;
+        }
+
+        .inspection-panel-body {
+            padding: .75rem;
+        }
+
+        .inspection-meta-grid,
+        .inspection-checklist-grid {
+            gap: .7rem;
+            margin-top: .85rem;
+        }
+
+        .inspection-overview-grid {
+            gap: .65rem;
+            margin-top: .85rem;
+        }
+
+        .inspection-overview-card {
+            border-radius: 14px;
+        }
+
+        .inspection-overview-card small {
+            font-size: .72rem;
+        }
+
+        .inspection-overview-card strong {
+            font-size: 1.05rem;
+        }
+
+        .inspection-overview-card span {
+            font-size: .76rem;
+        }
+
+        .inspection-field-card {
+            padding: .75rem;
+            border-radius: 14px;
+        }
+
+        .inspection-field-chip {
+            padding: .22rem .5rem;
+            font-size: .68rem;
+        }
+
+        .inspection-checklist-header {
+            gap: .7rem;
+            margin-bottom: .75rem;
+        }
+
+        .inspection-item-card {
+            padding: .75rem;
+            border-radius: 16px;
+        }
+
+        .inspection-item-top {
+            gap: .65rem;
+            margin-bottom: .7rem;
+        }
+
+        .inspection-item-top > .d-flex {
+            gap: .65rem !important;
+        }
+
+        .inspection-item-key {
+            width: 32px;
+            height: 32px;
+        }
+
+        .inspection-item-title {
+            font-size: .9rem;
+        }
+
+        .inspection-item-help,
+        .inspection-item-status-text {
+            font-size: .78rem;
+        }
+
+        .inspection-choice-label {
+            min-height: 52px;
+            padding: .65rem .85rem;
+            font-size: .94rem;
+        }
+
+        .inspection-note-input {
+            min-height: 50px;
+        }
+
+        .inspection-overall-note {
+            min-height: 110px;
         }
     }
 </style>

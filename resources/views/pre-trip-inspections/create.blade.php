@@ -24,6 +24,18 @@
         padding: 1.4rem;
     }
 
+    .inspection-form-card {
+        overflow: visible;
+    }
+
+    .inspection-form-card > .card-body {
+        overflow: visible;
+    }
+
+    .inspection-form-card form {
+        min-width: 0;
+    }
+
     .inspection-action-card {
         margin-top: 1.15rem;
     }
@@ -61,6 +73,10 @@
     }
 
     @media (max-width: 991.98px) {
+        .inspection-form-card .card-body {
+            padding: 1rem;
+        }
+
         .inspection-action-card .card-body {
             flex-direction: column;
             align-items: stretch;
@@ -82,14 +98,20 @@
             font-size: .92rem;
         }
 
+        .inspection-form-card {
+            border-radius: 18px;
+        }
+
         .inspection-form-card .card-body {
             padding: .85rem;
         }
 
         .inspection-action-card {
             position: sticky;
-            bottom: .75rem;
+            bottom: calc(.75rem + env(safe-area-inset-bottom));
             z-index: 20;
+            margin-left: -.15rem;
+            margin-right: -.15rem;
         }
 
         .inspection-action-card .card-body {
@@ -98,6 +120,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
         }
 
         .inspection-action-text strong {
@@ -123,6 +146,32 @@
 
         .inspection-action-buttons .btn-outline-secondary {
             order: 2;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .inspection-locked-banner {
+            margin-bottom: .8rem;
+            padding: .8rem;
+            border-radius: 14px;
+        }
+
+        .inspection-form-card {
+            margin-left: -4px;
+            margin-right: -4px;
+            border-radius: 16px;
+        }
+
+        .inspection-form-card .card-body {
+            padding: .65rem;
+        }
+
+        .inspection-action-card {
+            bottom: calc(.5rem + env(safe-area-inset-bottom));
+        }
+
+        .inspection-action-card .card-body {
+            padding: .75rem;
         }
     }
 </style>
