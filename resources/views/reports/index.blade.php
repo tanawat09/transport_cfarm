@@ -40,6 +40,10 @@
         border-radius: 18px;
         background: rgba(255, 255, 255, 0.72);
     }
+
+    .report-driver-hint {
+        min-height: 20px;
+    }
 </style>
 @endpush
 
@@ -67,21 +71,29 @@
             </div>
             <div class="col-md-2">
                 <label class="form-label">ทะเบียน</label>
-                <select name="vehicle_id" class="form-select">
+                <select name="vehicle_id" id="report_vehicle_id" class="form-select">
                     <option value="">ทั้งหมด</option>
                     @foreach($vehicles as $vehicle)
-                        <option value="{{ $vehicle->id }}" @selected(($filters['vehicle_id'] ?? null) == $vehicle->id)>{{ $vehicle->registration_number }}</option>
+                        <option
+                            value="{{ $vehicle->id }}"
+                            data-primary-driver-id="{{ $vehicle->primary_driver_id }}"
+                            data-primary-driver-name="{{ $vehicle->primaryDriver?->full_name ?? '' }}"
+                            @selected(($filters['vehicle_id'] ?? null) == $vehicle->id)
+                        >
+                            {{ $vehicle->registration_number }}
+                        </option>
                     @endforeach
                 </select>
             </div>
             <div class="col-md-2">
                 <label class="form-label">พนักงานขับ</label>
-                <select name="driver_id" class="form-select">
+                <select name="driver_id" id="report_driver_id" class="form-select">
                     <option value="">ทั้งหมด</option>
                     @foreach($drivers as $driver)
                         <option value="{{ $driver->id }}" @selected(($filters['driver_id'] ?? null) == $driver->id)>{{ $driver->full_name }}</option>
                     @endforeach
                 </select>
+                {{-- <div id="report_driver_hint" class="form-text report-driver-hint">เลือกทะเบียนรถเพื่อแสดงพนักงานขับประจำรถ</div> --}}
             </div>
             <div class="col-md-2">
                 <label class="form-label">ฟาร์ม</label>
@@ -229,3 +241,51 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const vehicleField = document.getElementById('report_vehicle_id');
+    const driverField = document.getElementById('report_driver_id');
+    const driverHint = document.getElementById('report_driver_hint');
+
+    if (!vehicleField || !driverField || !driverHint) {
+        return;
+    }
+
+    const initialDriverValue = driverField.value;
+
+    const syncDriverFromVehicle = (force = false) => {
+        const selectedVehicle = vehicleField.options[vehicleField.selectedIndex];
+        const driverId = selectedVehicle?.dataset?.primaryDriverId || '';
+        const driverName = selectedVehicle?.dataset?.primaryDriverName || '';
+
+        if (!vehicleField.value) {
+            if (force) {
+                driverField.value = '';
+            }
+            driverHint.textContent = 'เลือกทะเบียนรถเพื่อแสดงพนักงานขับประจำรถ';
+            return;
+        }
+
+        if (driverName) {
+            driverHint.textContent = `พนักงานขับประจำรถ: ${driverName}`;
+        } else {
+            driverHint.textContent = 'ทะเบียนรถคันนี้ยังไม่ได้กำหนดพนักงานขับประจำรถ';
+        }
+
+        if (driverId && (force || !driverField.value)) {
+            driverField.value = driverId;
+            return;
+        }
+
+        if (force && !driverId) {
+            driverField.value = '';
+        }
+    };
+
+    syncDriverFromVehicle(!initialDriverValue);
+    vehicleField.addEventListener('change', () => syncDriverFromVehicle(true));
+});
+</script>
+@endpush

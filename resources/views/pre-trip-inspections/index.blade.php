@@ -96,6 +96,13 @@
     .bar-fill { height: 100%; background: #1f6f78; border-radius: 999px; }
     .fail-bar { background: #dc3545; }
     .table-report th { white-space: nowrap; }
+    .failure-summary-card .card-body { padding: 1rem 1rem .85rem; }
+    .failure-summary-title { font-size: 1rem; font-weight: 800; margin-bottom: .85rem; }
+    .failure-summary-row { margin-bottom: .75rem; }
+    .failure-summary-row:last-child { margin-bottom: 0; }
+    .failure-summary-labels { font-size: .8rem; line-height: 1.35; }
+    .failure-summary-count { font-size: .82rem; }
+    .failure-summary-card .bar-track { height: 7px; }
 </style>
 @endpush
 
@@ -167,8 +174,8 @@
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-xl-5">
-        <div class="card h-100">
+    <div class="col-xl-4">
+        <div class="card h-100 failure-summary-card">
             <div class="card-body">
                 <div class="h5 fw-bold mb-3">หัวข้อที่ไม่ผ่านบ่อย</div>
                 @php $maxFail = max(1, $checkFailureStats->max('count')); @endphp
@@ -185,7 +192,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-7">
+    <div class="col-xl-8">
         <div class="card h-100">
             <div class="card-body table-responsive">
                 <div class="h5 fw-bold mb-3">รายการตรวจเช็ก</div>

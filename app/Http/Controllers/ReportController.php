@@ -22,19 +22,17 @@ class ReportController extends Controller
 
     public function index(ReportFilterRequest $request): View
     {
-        $filters = $request->validated() + [
-            'start_date' => $request->input('start_date', now()->startOfMonth()->toDateString()),
-            'end_date' => $request->input('end_date', now()->toDateString()),
-        ];
+        $filters = $this->resolveFilters($request);
 
         $query = $this->reportService->query($filters);
 
-        return view('reports.index', [
+        return view('reports.index-modern', [
             'filters' => $filters,
             'jobs' => $query->paginate(30)->withQueryString(),
             'summary' => $this->reportService->summary($query),
             'vehicles' => Vehicle::query()
-                ->where('vehicle_type', 'ลากจูง')
+                ->with('primaryDriver')
+                ->where('vehicle_type', Vehicle::TYPE_TRACTOR)
                 ->orderBy('registration_number')
                 ->get(),
             'drivers' => Driver::query()->orderBy('full_name')->get(),
@@ -45,7 +43,7 @@ class ReportController extends Controller
 
     public function exportExcel(ReportFilterRequest $request)
     {
-        $filters = $request->validated();
+        $filters = $this->resolveFilters($request);
         $fileName = 'transport-report-'.now()->format('Ymd_His').'.xlsx';
 
         return Excel::download(new TransportJobsReportExport($filters, $this->reportService), $fileName);
@@ -53,15 +51,24 @@ class ReportController extends Controller
 
     public function exportPdf(ReportFilterRequest $request): Response
     {
-        $filters = $request->validated();
+        $filters = $this->resolveFilters($request);
         $query = $this->reportService->query($filters);
 
         $pdf = Pdf::loadView('reports.pdf', [
             'filters' => $filters,
             'jobs' => $query->get(),
             'summary' => $this->reportService->summary($query),
+            'generatedAt' => now(),
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('transport-report-'.now()->format('Ymd_His').'.pdf');
+    }
+
+    private function resolveFilters(ReportFilterRequest $request): array
+    {
+        return $request->validated() + [
+            'start_date' => $request->input('start_date', now()->startOfMonth()->toDateString()),
+            'end_date' => $request->input('end_date', now()->toDateString()),
+        ];
     }
 }
