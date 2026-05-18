@@ -3,17 +3,48 @@
 @section('content')
 <div class="card mb-4"><div class="card-body">
     <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
-        <form method="POST" action="{{ route('transport-jobs.recalculate') }}" onsubmit="return confirm('ยืนยันการคำนวณใหม่ทั้งหมด? ระบบจะเรียงตามวันที่ของรถแต่ละคัน')">
+        <form method="POST" action="{{ route('transport-jobs.recalculate-vehicle') }}" class="d-flex gap-2 flex-wrap align-items-end" onsubmit="return confirm('ยืนยันการคำนวณเฉพาะทะเบียนนี้? ระบบจะเรียงตามวันที่ของรถคันนี้ทั้งหมด')">
             @csrf
-            <button type="submit" class="btn btn-outline-primary">คำนวณใหม่ทั้งหมด</button>
+            <input type="hidden" name="keyword" value="{{ request('keyword') }}">
+            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+            <div>
+                <label class="form-label mb-1">คำนวณรายทะเบียน</label>
+                <select name="vehicle_id" id="recalculate_vehicle_id" class="form-select" required>
+                    <option value="">เลือกทะเบียนรถ</option>
+                    @foreach($vehicles as $vehicle)
+                        <option value="{{ $vehicle->id }}" @selected(old('vehicle_id', request('vehicle_id')) == $vehicle->id)>
+                            {{ $vehicle->registration_number }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">คำนวณทะเบียนนี้</button>
         </form>
-        <a href="{{ route('transport-jobs.create') }}" class="btn btn-success">บันทึกเที่ยวขนส่ง</a>
+        <div class="d-flex gap-2 flex-wrap">
+            <form method="POST" action="{{ route('transport-jobs.recalculate') }}" onsubmit="return confirm('ยืนยันการคำนวณใหม่ทั้งหมด? ระบบจะเรียงตามวันที่ของรถแต่ละคัน')">
+                @csrf
+                <button type="submit" class="btn btn-outline-primary">คำนวณใหม่ทั้งหมด</button>
+            </form>
+            <a href="{{ route('transport-jobs.create') }}" class="btn btn-success">บันทึกเที่ยวขนส่ง</a>
+        </div>
     </div>
 
-    <form method="GET" class="row g-3 align-items-end">
+    <form method="GET" id="transport_job_filter_form" class="row g-3 align-items-end">
         <div class="col-md-3">
             <label class="form-label">คำค้น</label>
             <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control" placeholder="เลขที่เอกสาร หรือทะเบียนรถ">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">ทะเบียนรถ</label>
+            <select name="vehicle_id" id="filter_vehicle_id" class="form-select">
+                <option value="">ทุกทะเบียน</option>
+                @foreach($vehicles as $vehicle)
+                    <option value="{{ $vehicle->id }}" @selected(request('vehicle_id') == $vehicle->id)>
+                        {{ $vehicle->registration_number }}
+                    </option>
+                @endforeach
+            </select>
         </div>
         <div class="col-md-3">
             <label class="form-label">วันที่เริ่มต้น</label>
@@ -87,3 +118,26 @@
     {{ $jobs->links() }}
 </div></div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const filterForm = document.getElementById('transport_job_filter_form');
+    const filterVehicleField = document.getElementById('filter_vehicle_id');
+    const recalculateVehicleField = document.getElementById('recalculate_vehicle_id');
+
+    if (!filterForm || !filterVehicleField || !recalculateVehicleField) {
+        return;
+    }
+
+    filterVehicleField.addEventListener('change', () => {
+        filterForm.submit();
+    });
+
+    recalculateVehicleField.addEventListener('change', () => {
+        filterVehicleField.value = recalculateVehicleField.value;
+        filterForm.submit();
+    });
+});
+</script>
+@endpush

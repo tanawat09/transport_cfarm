@@ -38,6 +38,7 @@ class TransportJobController extends Controller
                         });
                 });
             })
+            ->when($request->filled('vehicle_id'), fn ($query) => $query->where('vehicle_id', $request->integer('vehicle_id')))
             ->when($request->filled('start_date'), fn ($query) => $query->whereDate('transport_date', '>=', $request->date('start_date')->toDateString()))
             ->when($request->filled('end_date'), fn ($query) => $query->whereDate('transport_date', '<=', $request->date('end_date')->toDateString()))
             ->latest('transport_date')
@@ -45,7 +46,9 @@ class TransportJobController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('transport-jobs.index', compact('jobs'));
+        $vehicles = $this->tractorVehicles();
+
+        return view('transport-jobs.index', compact('jobs', 'vehicles'));
     }
 
     public function create(): View
@@ -126,6 +129,29 @@ class TransportJobController extends Controller
             ->with('success', 'คำนวณเที่ยวขนส่งใหม่ตามลำดับวันที่ของรถทุกคันเรียบร้อยแล้ว');
     }
 
+    public function recalculateVehicle(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'vehicle_id' => ['required', 'integer', 'exists:vehicles,id'],
+        ], [
+            'vehicle_id.required' => 'กรุณาเลือกทะเบียนรถก่อนคำนวณ',
+            'vehicle_id.exists' => 'ไม่พบทะเบียนรถที่เลือก',
+        ]);
+
+        $vehicle = Vehicle::query()->findOrFail($validated['vehicle_id']);
+
+        $this->calculationService->recalculateVehicleJobs($vehicle->id);
+
+        return redirect()
+            ->route('transport-jobs.index', array_filter([
+                'vehicle_id' => $vehicle->id,
+                'keyword' => $request->input('keyword'),
+                'start_date' => $request->input('start_date'),
+                'end_date' => $request->input('end_date'),
+            ]))
+            ->with('success', "คำนวณเที่ยวขนส่งของทะเบียน {$vehicle->registration_number} ใหม่เรียบร้อยแล้ว");
+    }
+
     private function getFormData(): array
     {
         return [
@@ -139,5 +165,14 @@ class TransportJobController extends Controller
             'vendors' => Vendor::query()->where('status', 'active')->orderBy('vendor_name')->get(),
             'oilCompensationReasons' => OilCompensationReason::query()->where('status', 'active')->orderBy('reason_name')->get(),
         ];
+    }
+
+    private function tractorVehicles()
+    {
+        return Vehicle::query()
+            ->where('status', 'active')
+            ->where('vehicle_type', Vehicle::TYPE_TRACTOR)
+            ->orderBy('registration_number')
+            ->get(['id', 'registration_number']);
     }
 }

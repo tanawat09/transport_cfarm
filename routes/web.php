@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/lookup/latest-vehicle-mileage', [TransportJobLookupController::class, 'latestVehicleMileage'])->name('lookup.latest-vehicle-mileage');
 
     Route::post('/transport-jobs/recalculate', [TransportJobController::class, 'recalculateAll'])->name('transport-jobs.recalculate');
+    Route::post('/transport-jobs/recalculate-vehicle', [TransportJobController::class, 'recalculateVehicle'])->name('transport-jobs.recalculate-vehicle');
     Route::resource('transport-jobs', TransportJobController::class);
     Route::get('/pre-trip-inspections/export/pdf', [PreTripInspectionController::class, 'exportPdf'])->name('pre-trip-inspections.export.pdf');
     Route::resource('pre-trip-inspections', PreTripInspectionController::class);
