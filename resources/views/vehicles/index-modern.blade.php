@@ -329,13 +329,13 @@
                     </td>
                     <td class="vehicle-action-cell">
                         <div class="vehicle-qr-actions">
-                            @if($vehicle->supportsPreTripInspectionQr())
+                            @if(! $vehicle->supportsTractorUsageInspectionQr() && $vehicle->supportsPreTripInspectionQr())
                                 <a href="{{ $vehicle->inspectionQrUrl() }}" class="btn btn-sm btn-outline-primary" target="_blank">ฟอร์มตรวจ</a>
                                 <a href="{{ route('vehicles.inspection-qr-page', $vehicle) }}" class="btn btn-sm btn-outline-secondary" target="_blank">ดู QR</a>
                                 <a href="{{ route('vehicles.inspection-qr-print', $vehicle) }}" class="btn btn-sm btn-outline-dark" target="_blank">พิมพ์ตรวจ</a>
                             @endif
 
-                            @if($vehicle->supportsUsageLog())
+                            @if(! $vehicle->supportsTractorUsageInspectionQr() && $vehicle->supportsUsageLog())
                                 <a href="{{ $vehicle->usageLogQrUrl() }}" class="btn btn-sm btn-outline-success" target="_blank">ฟอร์มใช้รถ</a>
                                 <a href="{{ route('vehicles.usage-qr-page', $vehicle) }}" class="btn btn-sm btn-outline-success" target="_blank">QR ใช้รถ</a>
                                 <a href="{{ route('vehicles.usage-qr-print', $vehicle) }}" class="btn btn-sm btn-outline-dark" target="_blank">พิมพ์ใช้รถ</a>
