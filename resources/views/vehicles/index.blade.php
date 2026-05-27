@@ -31,6 +31,7 @@
                 <select name="qr_type" class="form-select">
                     <option value="inspection">QR ตรวจรถ</option>
                     <option value="usage">QR ใช้รถ</option>
+                    <option value="tractor_usage_inspection">QR ตรวจเช็กรถไถคูโบต้า</option>
                 </select>
             </div>
             <div>
@@ -96,6 +97,11 @@
                             <a href="{{ $vehicle->usageLogQrUrl() }}" class="btn btn-sm btn-outline-success" target="_blank">ฟอร์มใช้รถ</a>
                             <a href="{{ route('vehicles.usage-qr-page', $vehicle) }}" class="btn btn-sm btn-outline-success" target="_blank">QR ใช้รถ</a>
                             <a href="{{ route('vehicles.usage-qr-print', $vehicle) }}" class="btn btn-sm btn-outline-dark" target="_blank">พิมพ์ QR ใช้รถ</a>
+                            @endif
+                            @if($vehicle->supportsTractorUsageInspectionQr())
+                            <a href="{{ $vehicle->tractorUsageInspectionQrUrl() }}" class="btn btn-sm btn-outline-primary" target="_blank">ฟอร์มตรวจรถไถ</a>
+                            <a href="{{ route('vehicles.tractor-usage-inspection-qr-page', $vehicle) }}" class="btn btn-sm btn-outline-secondary" target="_blank">QR ตรวจรถไถ</a>
+                            <a href="{{ route('vehicles.tractor-usage-inspection-qr-print', $vehicle) }}" class="btn btn-sm btn-outline-dark" target="_blank">พิมพ์ตรวจรถไถ</a>
                             @endif
                         </div>
                     </td>

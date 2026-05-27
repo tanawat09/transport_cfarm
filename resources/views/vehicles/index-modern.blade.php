@@ -248,6 +248,7 @@
     <select id="qr-type" name="qr_type" class="form-select" aria-label="ประเภท QR">
         <option value="inspection">QR ตรวจรถ</option>
         <option value="usage">QR ใช้รถ</option>
+        <option value="tractor_usage_inspection">QR ตรวจเช็กรถไถคูโบต้า</option>
     </select>
     <button type="submit" class="btn btn-dark">พิมพ์ QR หลายคัน</button>
 </form>
@@ -340,7 +341,13 @@
                                 <a href="{{ route('vehicles.usage-qr-print', $vehicle) }}" class="btn btn-sm btn-outline-dark" target="_blank">พิมพ์ใช้รถ</a>
                             @endif
 
-                            @if(! $vehicle->supportsPreTripInspectionQr() && ! $vehicle->supportsUsageLog())
+                            @if($vehicle->supportsTractorUsageInspectionQr())
+                                <a href="{{ $vehicle->tractorUsageInspectionQrUrl() }}" class="btn btn-sm btn-outline-primary" target="_blank">ฟอร์มตรวจรถไถ</a>
+                                <a href="{{ route('vehicles.tractor-usage-inspection-qr-page', $vehicle) }}" class="btn btn-sm btn-outline-secondary" target="_blank">QR ตรวจรถไถ</a>
+                                <a href="{{ route('vehicles.tractor-usage-inspection-qr-print', $vehicle) }}" class="btn btn-sm btn-outline-dark" target="_blank">พิมพ์ตรวจรถไถ</a>
+                            @endif
+
+                            @if(! $vehicle->supportsPreTripInspectionQr() && ! $vehicle->supportsUsageLog() && ! $vehicle->supportsTractorUsageInspectionQr())
                                 <span class="vehicle-muted">ไม่รองรับ QR</span>
                             @endif
                         </div>

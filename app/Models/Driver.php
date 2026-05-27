@@ -43,4 +43,9 @@ class Driver extends Model
     {
         return $this->hasMany(PreTripInspection::class);
     }
+
+    public function tractorUsageInspections(): HasMany
+    {
+        return $this->hasMany(TractorUsageInspection::class);
+    }
 }

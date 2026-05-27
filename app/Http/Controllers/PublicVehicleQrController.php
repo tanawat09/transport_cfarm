@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PreTripInspectionRequest;
+use App\Http\Requests\TractorUsageInspectionRequest;
 use App\Http\Requests\VehicleUsageLogRequest;
 use App\Models\Driver;
+use App\Models\Farm;
 use App\Models\PreTripChecklistItem;
 use App\Models\PreTripInspection;
+use App\Models\TractorUsageInspection;
 use App\Models\Vehicle;
 use App\Models\VehicleQrAccessLog;
 use App\Models\VehicleQrToken;
@@ -161,6 +164,62 @@ class PublicVehicleQrController extends Controller
             ->with('success', 'บันทึกการใช้รถเรียบร้อยแล้ว');
     }
 
+    public function showTractorUsageInspectionForm(Request $request, string $token): View|RedirectResponse
+    {
+        $qrToken = $this->findAvailableToken($token);
+        abort_unless($qrToken->access_type === VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION, 404);
+
+        if (! $this->isVerified($qrToken, $request)) {
+            return redirect()->route('public.vehicle-qr.access', $qrToken->token);
+        }
+
+        $vehicle = $qrToken->vehicle()->with('primaryDriver')->firstOrFail();
+        abort_unless($vehicle->supportsTractorUsageInspectionQr(), 404);
+
+        $this->logEvent($qrToken, VehicleQrAccessLog::EVENT_FORM_VIEWED);
+
+        return view('public.tractor-usage-inspections.create', [
+            'inspection' => new TractorUsageInspection([
+                'inspection_date' => now()->toDateString(),
+                'inspection_time' => now()->format('H:i'),
+                'vehicle_id' => $vehicle->id,
+                'driver_id' => $vehicle->primary_driver_id,
+            ]),
+            'vehicles' => collect([$vehicle]),
+            'farms' => Farm::query()->orderBy('farm_name')->get(),
+            'statusOptions' => TractorUsageInspection::statusOptions(),
+            'checklistGroups' => TractorUsageInspection::checklistGroups(),
+            'lockedVehicle' => $vehicle,
+            'qrToken' => $qrToken,
+        ]);
+    }
+
+    public function storeTractorUsageInspection(TractorUsageInspectionRequest $request, string $token): RedirectResponse
+    {
+        $qrToken = $this->findAvailableToken($token);
+        abort_unless($qrToken->access_type === VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION, 404);
+
+        if (! $this->isVerified($qrToken, $request)) {
+            return redirect()->route('public.vehicle-qr.access', $qrToken->token);
+        }
+
+        $vehicle = $qrToken->vehicle()->firstOrFail();
+        abort_unless($vehicle->supportsTractorUsageInspectionQr(), 404);
+
+        TractorUsageInspection::create($this->tractorUsageInspectionPayload(
+            array_merge($request->validated(), ['vehicle_id' => $vehicle->id])
+        ));
+
+        $qrToken->markUsed();
+        $this->logEvent($qrToken, VehicleQrAccessLog::EVENT_FORM_SUBMITTED, [
+            'inspection_date' => $request->input('inspection_date'),
+        ]);
+
+        return redirect()
+            ->route('public.vehicle-qr.tractor-usage-inspection.form', $qrToken->token)
+            ->with('success', 'บันทึกการตรวจเช็กการใช้งานรถไถเรียบร้อยแล้ว');
+    }
+
     private function inspectionPayload(array $validated): array
     {
         $items = PreTripChecklistItem::query()->active()->ordered()->get();
@@ -211,6 +270,30 @@ class PublicVehicleQrController extends Controller
             'fuel_total_amount' => $fuelTotal,
             'user_id' => auth()->id(),
         ]);
+    }
+
+    private function tractorUsageInspectionPayload(array $validated): array
+    {
+        $results = [];
+
+        foreach (TractorUsageInspection::checklistItems() as $item) {
+            $input = $validated['inspection_items'][$item['key']] ?? [];
+
+            $results[$item['key']] = [
+                'label' => $item['label'],
+                'status' => $input['status'] ?? null,
+                'note' => $input['note'] ?? null,
+            ];
+        }
+
+        $validated['user_id'] = auth()->id();
+        $validated['checklist_results'] = $results;
+        $validated['is_ready_for_use'] = collect($results)
+            ->every(fn (array $result) => ($result['status'] ?? null) === TractorUsageInspection::STATUS_PASS);
+
+        unset($validated['inspection_items']);
+
+        return $validated;
     }
 
     private function findAvailableToken(string $token): VehicleQrToken

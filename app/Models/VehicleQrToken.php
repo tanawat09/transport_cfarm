@@ -15,6 +15,7 @@ class VehicleQrToken extends Model
 
     public const TYPE_INSPECTION = 'inspection';
     public const TYPE_USAGE = 'usage';
+    public const TYPE_TRACTOR_USAGE_INSPECTION = 'tractor_usage_inspection';
 
     protected $fillable = [
         'vehicle_id',
@@ -82,6 +83,7 @@ class VehicleQrToken extends Model
     {
         return match ($this->access_type) {
             self::TYPE_USAGE => route('public.vehicle-qr.usage.form', $this->token),
+            self::TYPE_TRACTOR_USAGE_INSPECTION => route('public.vehicle-qr.tractor-usage-inspection.form', $this->token),
             default => route('public.vehicle-qr.inspection.form', $this->token),
         };
     }

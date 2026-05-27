@@ -11,6 +11,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RouteStandardController;
 use App\Http\Controllers\TireRegistrationController;
 use App\Http\Controllers\TelegramSettingController;
+use App\Http\Controllers\TractorUsageChecklistItemController;
+use App\Http\Controllers\TractorUsageInspectionController;
 use App\Http\Controllers\TireAlertReportController;
 use App\Http\Controllers\TransportJobController;
 use App\Http\Controllers\TransportJobLookupController;
@@ -35,6 +37,8 @@ Route::prefix('public/vehicle-qr')->middleware('throttle:20,1')->group(function 
     Route::post('/{token}/inspection', [PublicVehicleQrController::class, 'storeInspection'])->name('public.vehicle-qr.inspection.store');
     Route::get('/{token}/usage', [PublicVehicleQrController::class, 'showUsageForm'])->name('public.vehicle-qr.usage.form');
     Route::post('/{token}/usage', [PublicVehicleQrController::class, 'storeUsageLog'])->name('public.vehicle-qr.usage.store');
+    Route::get('/{token}/tractor-usage-inspection', [PublicVehicleQrController::class, 'showTractorUsageInspectionForm'])->name('public.vehicle-qr.tractor-usage-inspection.form');
+    Route::post('/{token}/tractor-usage-inspection', [PublicVehicleQrController::class, 'storeTractorUsageInspection'])->name('public.vehicle-qr.tractor-usage-inspection.store');
 });
 
 Route::middleware('auth')->group(function () {
@@ -55,6 +59,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/vehicle-usage-logs/create', [VehicleUsageLogController::class, 'create'])->name('vehicle-usage-logs.create');
     Route::post('/vehicle-usage-logs', [VehicleUsageLogController::class, 'store'])->name('vehicle-usage-logs.store');
     Route::delete('/vehicle-usage-logs/{vehicleUsageLog}', [VehicleUsageLogController::class, 'destroy'])->name('vehicle-usage-logs.destroy');
+    Route::get('/tractor-usage-inspections', [TractorUsageInspectionController::class, 'index'])->name('tractor-usage-inspections.index');
+    Route::get('/tractor-usage-inspections/create', [TractorUsageInspectionController::class, 'create'])->name('tractor-usage-inspections.create');
+    Route::post('/tractor-usage-inspections', [TractorUsageInspectionController::class, 'store'])->name('tractor-usage-inspections.store');
+    Route::get('/tractor-usage-inspections/{tractorUsageInspection}', [TractorUsageInspectionController::class, 'show'])->name('tractor-usage-inspections.show');
+    Route::get('/tractor-usage-inspections/{tractorUsageInspection}/edit', [TractorUsageInspectionController::class, 'edit'])->name('tractor-usage-inspections.edit');
+    Route::put('/tractor-usage-inspections/{tractorUsageInspection}', [TractorUsageInspectionController::class, 'update'])->name('tractor-usage-inspections.update');
+    Route::delete('/tractor-usage-inspections/{tractorUsageInspection}', [TractorUsageInspectionController::class, 'destroy'])->name('tractor-usage-inspections.destroy');
     Route::get('/tire-registrations', [TireRegistrationController::class, 'index'])->name('tire-registrations.index');
     Route::get('/tire-registrations/report', [TireAlertReportController::class, 'index'])->name('tire-registrations.report');
     Route::post('/tire-registrations', [TireRegistrationController::class, 'store'])->name('tire-registrations.store');
@@ -72,6 +83,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/vehicles/{vehicle}/usage-qr', [VehicleController::class, 'usageQrPage'])->name('vehicles.usage-qr-page');
         Route::get('/vehicles/{vehicle}/usage-qr/print', [VehicleController::class, 'usageQrPrint'])->name('vehicles.usage-qr-print');
         Route::get('/vehicles/{vehicle}/usage-qr.svg', [VehicleController::class, 'usageQrCode'])->name('vehicles.usage-qr-code');
+        Route::get('/vehicles/{vehicle}/tractor-usage-inspection-qr', [VehicleController::class, 'tractorUsageInspectionQrPage'])->name('vehicles.tractor-usage-inspection-qr-page');
+        Route::get('/vehicles/{vehicle}/tractor-usage-inspection-qr/print', [VehicleController::class, 'tractorUsageInspectionQrPrint'])->name('vehicles.tractor-usage-inspection-qr-print');
+        Route::get('/vehicles/{vehicle}/tractor-usage-inspection-qr.svg', [VehicleController::class, 'tractorUsageInspectionQrCode'])->name('vehicles.tractor-usage-inspection-qr-code');
         Route::post('/vehicles/{vehicle}/qr-token/{accessType}/toggle', [VehicleController::class, 'toggleQrToken'])->name('vehicles.qr-token.toggle');
         Route::post('/vehicles/{vehicle}/qr-token/{accessType}/regenerate', [VehicleController::class, 'regenerateQrToken'])->name('vehicles.qr-token.regenerate');
         Route::resource('vehicle-documents', VehicleDocumentController::class)->except(['show']);
@@ -79,6 +93,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/telegram-settings', [TelegramSettingController::class, 'update'])->name('telegram-settings.update');
         Route::post('/telegram-settings/test', [TelegramSettingController::class, 'test'])->name('telegram-settings.test');
         Route::resource('pre-trip-checklist-items', PreTripChecklistItemController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('tractor-usage-checklist-items', TractorUsageChecklistItemController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('vehicles', VehicleController::class)->except(['show']);
         Route::resource('drivers', DriverController::class)->except(['show']);
         Route::resource('farms', FarmController::class)->except(['show']);

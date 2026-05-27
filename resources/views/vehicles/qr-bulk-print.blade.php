@@ -238,11 +238,14 @@
 <body>
     @php
         $isUsage = $qrType === 'usage';
-        $title = $isUsage ? 'สติ๊กเกอร์ QR บันทึกการใช้รถ' : 'สติ๊กเกอร์ QR ตรวจรถก่อนวิ่ง';
+        $isTractorUsageInspection = $qrType === 'tractor_usage_inspection';
+        $title = $isTractorUsageInspection
+            ? 'สติ๊กเกอร์ QR ตรวจเช็กการใช้งานรถไถ'
+            : ($isUsage ? 'สติ๊กเกอร์ QR บันทึกการใช้รถ' : 'สติ๊กเกอร์ QR ตรวจรถก่อนวิ่ง');
         $subtitle = 'พิมพ์ 4 ดวงต่อ A4 สำหรับแปะรถ';
-        $cta = $isUsage ? 'สแกนเพื่อใช้รถ' : 'สแกนเพื่อตรวจรถ';
-        $chip = $isUsage ? 'ชุดสติ๊กเกอร์ใช้รถ' : 'ชุดสติ๊กเกอร์ตรวจรถ';
-        $labelChip = $isUsage ? 'บันทึกการใช้รถ' : 'ตรวจรถก่อนวิ่ง';
+        $cta = $isTractorUsageInspection ? 'สแกนเพื่อตรวจรถไถ' : ($isUsage ? 'สแกนเพื่อใช้รถ' : 'สแกนเพื่อตรวจรถ');
+        $chip = $isTractorUsageInspection ? 'ชุดสติ๊กเกอร์ตรวจรถไถ' : ($isUsage ? 'ชุดสติ๊กเกอร์ใช้รถ' : 'ชุดสติ๊กเกอร์ตรวจรถ');
+        $labelChip = $isTractorUsageInspection ? 'ตรวจเช็กการใช้งานรถไถ' : ($isUsage ? 'บันทึกการใช้รถ' : 'ตรวจรถก่อนวิ่ง');
     @endphp
 
     <main class="sheet">
@@ -262,9 +265,11 @@
                 <div class="labels">
                     @foreach($vehicleChunk as $vehicle)
                         @php
-                            $token = $isUsage
-                                ? $vehicle->issueQrToken(\App\Models\VehicleQrToken::TYPE_USAGE)
-                                : $vehicle->issueQrToken(\App\Models\VehicleQrToken::TYPE_INSPECTION);
+                            $token = match ($qrType) {
+                                'usage' => $vehicle->issueQrToken(\App\Models\VehicleQrToken::TYPE_USAGE),
+                                'tractor_usage_inspection' => $vehicle->issueQrToken(\App\Models\VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION),
+                                default => $vehicle->issueQrToken(\App\Models\VehicleQrToken::TYPE_INSPECTION),
+                            };
                         @endphp
                         <article class="label">
                             <div class="label-top">
@@ -286,7 +291,9 @@
                                 </div>
 
                                 <div class="qr-wrap">
-                                    @if($isUsage)
+                                    @if($isTractorUsageInspection)
+                                        <img src="{{ route('vehicles.tractor-usage-inspection-qr-code', $vehicle) }}" alt="QR Code {{ $vehicle->registration_number }}">
+                                    @elseif($isUsage)
                                         <img src="{{ route('vehicles.usage-qr-code', $vehicle) }}" alt="QR Code {{ $vehicle->registration_number }}">
                                     @else
                                         <img src="{{ route('vehicles.inspection-qr-code', $vehicle) }}" alt="QR Code {{ $vehicle->registration_number }}">

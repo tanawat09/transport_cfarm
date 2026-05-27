@@ -15,6 +15,7 @@ services:
       APP_ENV: ${DOCKER_APP_ENV:-local}
       APP_DEBUG: ${DOCKER_APP_DEBUG:-true}
       APP_URL: ${DOCKER_APP_URL:-http://127.0.0.1:2020}
+      APP_TIMEZONE: ${DOCKER_APP_TIMEZONE:-Asia/Bangkok}
       DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: 3306

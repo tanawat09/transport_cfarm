@@ -90,7 +90,12 @@ class VehicleController extends Controller
 
     public function bulkQrPrint(Request $request): View|RedirectResponse
     {
-        $qrType = $request->input('qr_type') === 'usage' ? 'usage' : 'inspection';
+        $qrType = in_array($request->input('qr_type'), [
+            VehicleQrToken::TYPE_USAGE,
+            VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION,
+        ], true)
+            ? $request->input('qr_type')
+            : VehicleQrToken::TYPE_INSPECTION;
         $vehicleIds = collect($request->input('vehicles', []))
             ->filter()
             ->map(fn ($id) => (int) $id)
@@ -105,9 +110,11 @@ class VehicleController extends Controller
             ->whereKey($vehicleIds)
             ->orderBy('registration_number')
             ->get()
-            ->filter(fn (Vehicle $vehicle) => $qrType === 'usage'
-                ? $vehicle->supportsUsageLog()
-                : $vehicle->supportsPreTripInspectionQr())
+            ->filter(fn (Vehicle $vehicle) => match ($qrType) {
+                VehicleQrToken::TYPE_USAGE => $vehicle->supportsUsageLog(),
+                VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION => $vehicle->supportsTractorUsageInspectionQr(),
+                default => $vehicle->supportsPreTripInspectionQr(),
+            })
             ->values();
 
         if ($vehicles->isEmpty()) {
@@ -131,6 +138,20 @@ class VehicleController extends Controller
         return view('vehicles.usage-qr-print', $this->qrViewData($vehicle, VehicleQrToken::TYPE_USAGE));
     }
 
+    public function tractorUsageInspectionQrPage(Vehicle $vehicle): View
+    {
+        abort_unless($vehicle->supportsTractorUsageInspectionQr(), 404);
+
+        return view('vehicles.tractor-usage-inspection-qr', $this->qrViewData($vehicle, VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION));
+    }
+
+    public function tractorUsageInspectionQrPrint(Vehicle $vehicle): View
+    {
+        abort_unless($vehicle->supportsTractorUsageInspectionQr(), 404);
+
+        return view('vehicles.tractor-usage-inspection-qr-print', $this->qrViewData($vehicle, VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION));
+    }
+
     public function inspectionQrCode(Vehicle $vehicle): Response
     {
         abort_unless($vehicle->supportsPreTripInspectionQr(), 404);
@@ -143,6 +164,13 @@ class VehicleController extends Controller
         abort_unless($vehicle->supportsUsageLog(), 404);
 
         return $this->qrResponse($vehicle->issueQrToken(VehicleQrToken::TYPE_USAGE)->publicUrl());
+    }
+
+    public function tractorUsageInspectionQrCode(Vehicle $vehicle): Response
+    {
+        abort_unless($vehicle->supportsTractorUsageInspectionQr(), 404);
+
+        return $this->qrResponse($vehicle->issueQrToken(VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION)->publicUrl());
     }
 
     public function toggleQrToken(Request $request, Vehicle $vehicle, string $accessType): RedirectResponse
@@ -250,6 +278,7 @@ class VehicleController extends Controller
         return match ($accessType) {
             VehicleQrToken::TYPE_INSPECTION => $vehicle->supportsPreTripInspectionQr(),
             VehicleQrToken::TYPE_USAGE => $vehicle->supportsUsageLog(),
+            VehicleQrToken::TYPE_TRACTOR_USAGE_INSPECTION => $vehicle->supportsTractorUsageInspectionQr(),
             default => false,
         };
     }

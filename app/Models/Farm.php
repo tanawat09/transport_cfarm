@@ -29,4 +29,9 @@ class Farm extends Model
     {
         return $this->hasMany(TransportJob::class);
     }
+
+    public function tractorUsageInspections(): HasMany
+    {
+        return $this->hasMany(TractorUsageInspection::class);
+    }
 }

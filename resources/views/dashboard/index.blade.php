@@ -150,7 +150,7 @@
         ['label' => 'ระยะทางเดือนนี้', 'value' => number_format($monthlyDistance, 2), 'note' => 'กม.'],
         ['label' => 'น้ำหนักอาหารเดือนนี้', 'value' => number_format($monthlyFoodWeight, 2), 'note' => 'กก.'],
         ['label' => 'เอกสารหมดอายุ', 'value' => number_format($expiredDocumentCount), 'note' => 'รายการ', 'class' => 'border-danger-subtle'],
-        ['label' => 'เอกสารใกล้หมด', 'value' => number_format($expiringDocumentCount), 'note' => 'ภายใน 30 วัน', 'class' => 'border-warning-subtle'],
+        ['label' => 'เอกสารใกล้หมดอายุ', 'value' => number_format($expiringDocumentCount), 'note' => 'ภายใน 30 วัน', 'class' => 'border-warning-subtle'],
         ['label' => 'ตรวจรถไม่ผ่านเดือนนี้', 'value' => number_format($inspectionFailMonthCount), 'note' => 'ครั้ง'],
         ['label' => 'ยางต้องติดตาม', 'value' => number_format($tireWarningCount), 'note' => 'ตำแหน่ง'],
     ] as $metric)

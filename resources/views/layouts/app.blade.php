@@ -619,6 +619,12 @@
                     <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}">รายงาน</a>
                 </div>
                 <a class="nav-link {{ request()->routeIs('vehicle-usage-logs.*') ? 'active' : '' }}" href="{{ route('vehicle-usage-logs.index') }}">บันทึกการใช้รถ</a>
+                  <a class="nav-link {{ request()->routeIs('tractor-usage-inspections.*') || request()->routeIs('tractor-usage-checklist-items.*') ? 'active' : '' }}" href="{{ route('tractor-usage-inspections.index') }}">ตรวจเช็กรถไถ</a>
+                  @if(auth()->user()?->isAdmin())
+                      <div class="sidebar-subnav">
+                          <a class="nav-link {{ request()->routeIs('tractor-usage-checklist-items.*') ? 'active' : '' }}" href="{{ route('tractor-usage-checklist-items.index') }}">ตั้งค่ารายการตรวจรถไถ</a>
+                      </div>
+                  @endif
                 <a class="nav-link {{ request()->routeIs('pre-trip-inspections.*') ? 'active' : '' }}" href="{{ route('pre-trip-inspections.index') }}">ตรวจเช็กรถก่อนวิ่ง</a>
                 @if(auth()->user()?->isAdmin())
                     <div class="sidebar-subnav">

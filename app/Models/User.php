@@ -41,4 +41,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(PreTripInspection::class);
     }
+
+    public function tractorUsageInspections(): HasMany
+    {
+        return $this->hasMany(TractorUsageInspection::class);
+    }
 }
