@@ -14,7 +14,7 @@ return new class extends Migration
             $table->time('inspection_time');
             $table->foreignId('vehicle_id')->constrained()->restrictOnDelete();
             $table->foreignId('driver_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('user_id')->constrained()->restrictOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->restrictOnDelete();
             $table->decimal('working_hours', 10, 2);
             $table->json('checklist_results');
             $table->boolean('is_ready_for_use')->default(true)->index();
