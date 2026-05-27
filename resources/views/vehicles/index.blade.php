@@ -68,7 +68,7 @@
             @forelse($vehicles as $vehicle)
                 <tr>
                     <td>
-                        <input type="checkbox" class="form-check-input vehicle-checkbox" name="vehicles[]" value="{{ $vehicle->id }}" form="bulk-qr-form" aria-label="เลือกรถ {{ $vehicle->registration_number }}">
+                        <input type="checkbox" class="form-check-input vehicle-checkbox" name="vehicles[]" value="{{ $vehicle->id }}" form="bulk-qr-form" data-supports-inspection="{{ $vehicle->supportsPreTripInspectionQr() ? '1' : '0' }}" data-supports-usage="{{ (! $vehicle->supportsTractorUsageInspectionQr() && $vehicle->supportsUsageLog()) ? '1' : '0' }}" data-supports-tractor-usage-inspection="{{ $vehicle->supportsTractorUsageInspectionQr() ? '1' : '0' }}" aria-label="เลือกรถ {{ $vehicle->registration_number }}">
                     </td>
                     <td>{{ $vehicle->registration_number }}</td>
                     <td>{{ $vehicle->registered_at ? $vehicle->registered_at->format('d/m/Y') : '-' }}</td>
@@ -130,7 +130,52 @@
         const selectAll = document.getElementById('select-all-vehicles');
         const checkboxes = Array.from(document.querySelectorAll('.vehicle-checkbox'));
         const bulkForm = document.getElementById('bulk-qr-form');
+        const qrTypeSelect = bulkForm ? bulkForm.querySelector('select[name="qr_type"]') : null;
         let keywordTimer = null;
+
+        function optionSupportsAnyChecked(optionValue) {
+            const checked = checkboxes.filter((checkbox) => checkbox.checked);
+
+            if (checked.length === 0) {
+                return true;
+            }
+
+            return checked.some((checkbox) => {
+                if (optionValue === 'inspection') {
+                    return checkbox.dataset.supportsInspection === '1';
+                }
+
+                if (optionValue === 'usage') {
+                    return checkbox.dataset.supportsUsage === '1';
+                }
+
+                if (optionValue === 'tractor_usage_inspection') {
+                    return checkbox.dataset.supportsTractorUsageInspection === '1';
+                }
+
+                return false;
+            });
+        }
+
+        function updateQrTypeAvailability() {
+            if (!qrTypeSelect) {
+                return;
+            }
+
+            const options = Array.from(qrTypeSelect.options);
+
+            options.forEach((option) => {
+                option.disabled = !optionSupportsAnyChecked(option.value);
+            });
+
+            if (qrTypeSelect.selectedOptions[0]?.disabled) {
+                const firstEnabledOption = options.find((option) => !option.disabled);
+
+                if (firstEnabledOption) {
+                    qrTypeSelect.value = firstEnabledOption.value;
+                }
+            }
+        }
 
         if (keywordInput && filterForm) {
             keywordInput.addEventListener('input', function () {
@@ -150,17 +195,30 @@
         if (selectAll) {
             selectAll.addEventListener('change', function () {
                 checkboxes.forEach((checkbox) => checkbox.checked = selectAll.checked);
+                updateQrTypeAvailability();
             });
         }
+
+        checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', updateQrTypeAvailability);
+        });
 
         if (bulkForm) {
             bulkForm.addEventListener('submit', function (event) {
                 if (!checkboxes.some((checkbox) => checkbox.checked)) {
                     event.preventDefault();
                     alert('กรุณาเลือกรถอย่างน้อย 1 คัน');
+                    return;
+                }
+
+                if (qrTypeSelect && !optionSupportsAnyChecked(qrTypeSelect.value)) {
+                    event.preventDefault();
+                    alert('รถที่เลือกไม่รองรับ QR ประเภทนี้ กรุณาเลือกประเภท QR ที่ตรงกับรถที่เลือก');
                 }
             });
         }
+
+        updateQrTypeAvailability();
     });
 </script>
 @endsection

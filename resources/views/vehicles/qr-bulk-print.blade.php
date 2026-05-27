@@ -7,11 +7,21 @@
     <style>
         @page { size: A4 portrait; margin: 8mm; }
         * { box-sizing: border-box; }
+        :root {
+            --ink: #14273a;
+            --muted: #667789;
+            --line: #d6e0e8;
+            --soft-line: #eef3f6;
+            --panel: #f8fbfd;
+            --brand: #123653;
+            --brand-2: #17636d;
+            --accent: #b98a32;
+        }
         body {
             margin: 0;
             font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-            background: #edf3f6;
-            color: #17324d;
+            background: linear-gradient(180deg, #eef3f6 0%, #f7fafc 100%);
+            color: var(--ink);
         }
         .sheet {
             width: 100%;
@@ -35,9 +45,21 @@
             gap: 12px;
             margin-bottom: 6mm;
             padding: 12px 16px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #17324d 0%, #1f5f66 100%);
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
             color: #ffffff;
+            box-shadow: 0 12px 24px rgba(18, 54, 83, 0.16);
+            position: relative;
+            overflow: hidden;
+        }
+        .page-title::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), rgba(255, 255, 255, 0.2), transparent);
         }
         .page-brand {
             display: flex;
@@ -46,10 +68,11 @@
             min-width: 0;
         }
         .page-brand img {
-            width: 82px;
+            width: 78px;
             height: auto;
             display: block;
             object-fit: contain;
+            filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.2));
         }
         .page-heading {
             font-size: 18px;
@@ -57,15 +80,15 @@
             line-height: 1.2;
         }
         .page-subheading {
-            margin-top: 2px;
+            margin-top: 4px;
             font-size: 11px;
-            opacity: 0.86;
+            opacity: 0.82;
         }
         .page-chip {
             padding: 7px 12px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.24);
             font-size: 11px;
             font-weight: 700;
             white-space: nowrap;
@@ -81,23 +104,32 @@
         .label {
             height: 119mm;
             background: #ffffff;
-            border: 1px solid #d7e1e8;
-            border-radius: 18px;
-            box-shadow: 0 8px 24px rgba(23, 50, 77, 0.08);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: 0 12px 26px rgba(18, 54, 83, 0.08);
             overflow: hidden;
             page-break-inside: avoid;
             break-inside: avoid;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+        .label::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--accent), var(--brand-2));
+            z-index: 2;
         }
         .label-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            padding: 10px 12px;
-            background: #f4f8fb;
-            border-bottom: 1px solid #deeaef;
+            padding: 9px 12px 9px 16px;
+            background: linear-gradient(180deg, #fbfdff 0%, #f4f8fb 100%);
+            border-bottom: 1px solid #e2e9ee;
         }
         .label-brand {
             display: flex;
@@ -106,68 +138,84 @@
             min-width: 0;
         }
         .label-brand img {
-            width: 62px;
+            width: 56px;
             height: auto;
             display: block;
             object-fit: contain;
         }
         .label-brand-title {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 800;
-            color: #17324d;
+            color: var(--brand);
             line-height: 1.2;
         }
         .label-brand-subtitle {
             font-size: 9px;
-            color: #647586;
+            color: #607283;
             margin-top: 2px;
             line-height: 1.3;
         }
         .label-chip {
             padding: 5px 8px;
-            border-radius: 999px;
-            background: #17324d;
-            color: #ffffff;
-            font-size: 9px;
-            font-weight: 700;
+            border-radius: 6px;
+            background: #eef5f7;
+            border: 1px solid #d7e5ea;
+            color: var(--brand);
+            font-size: 8px;
+            font-weight: 800;
             white-space: nowrap;
             flex-shrink: 0;
         }
         .label-body {
             flex: 1;
-            padding: 10px 12px 12px;
+            padding: 11px 16px 14px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             text-align: center;
+            position: relative;
+            isolation: isolate;
         }
         .plate {
-            font-size: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            line-height: 1.05;
+            color: var(--ink);
+        }
+        .vehicle-kicker {
+            margin-top: 4px;
+            font-size: 8px;
             font-weight: 800;
-            line-height: 1.1;
-            color: #12263a;
+            text-transform: uppercase;
+            color: var(--accent);
         }
         .vehicle-meta {
             margin-top: 4px;
-            font-size: 10px;
-            line-height: 1.5;
-            color: #5d6d7d;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: var(--panel);
+            border: 1px solid var(--soft-line);
+            font-size: 9px;
+            line-height: 1.45;
+            color: var(--muted);
+            max-width: 88%;
         }
         .vehicle-meta strong {
-            color: #17324d;
+            color: var(--brand);
         }
         .qr-wrap {
-            width: 40mm;
-            height: 40mm;
-            margin-top: 10px;
-            padding: 2.5mm;
-            border: 1px solid #d7e0e8;
-            border-radius: 14px;
+            width: 45mm;
+            height: 45mm;
+            margin-top: 8px;
+            padding: 3.5mm;
+            border: 2px solid #d3e0e8;
+            border-radius: 8px;
             background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 8px 18px rgba(18, 54, 83, 0.08);
         }
         .qr-wrap img {
             width: 100%;
@@ -175,36 +223,51 @@
             display: block;
         }
         .cta {
-            margin-top: 8px;
-            font-size: 13px;
-            font-weight: 800;
-            color: #17324d;
+            margin-top: 7px;
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1.2;
         }
         .hint {
             margin-top: 3px;
             font-size: 8px;
-            line-height: 1.45;
-            color: #6a7988;
+            line-height: 1.4;
+            color: #718394;
+            max-width: 86%;
         }
         .pin-box {
             width: 100%;
-            margin-top: 8px;
-            padding: 8px 10px;
-            border-radius: 12px;
-            background: #17324d;
+            margin-top: 7px;
+            padding: 8px 10px 10px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #102f49 0%, var(--brand-2) 100%);
             color: #ffffff;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
         }
         .pin-label {
             font-size: 8px;
-            opacity: 0.84;
+            opacity: 0.78;
             line-height: 1.3;
         }
         .pin-value {
-            margin-top: 3px;
-            font-size: 18px;
-            font-weight: 800;
+            margin-top: 4px;
+            font-size: 23px;
+            font-weight: 900;
             letter-spacing: 1px;
             line-height: 1;
+        }
+        .screen-actions button,
+        .screen-actions a {
+            border: 0;
+            background: var(--brand);
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(16, 38, 58, 0.16);
         }
         .screen-actions {
             position: fixed;
@@ -212,17 +275,6 @@
             bottom: 20px;
             display: flex;
             gap: 10px;
-        }
-        .screen-actions button,
-        .screen-actions a {
-            border: 0;
-            background: #17324d;
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
         }
         .screen-actions a {
             background: #5a6a7a;
@@ -285,6 +337,7 @@
 
                             <div class="label-body">
                                 <div class="plate">{{ $vehicle->registration_number }}</div>
+                                <div class="vehicle-kicker">CFARM TRANSPORT QR</div>
                                 <div class="vehicle-meta">
                                     <strong>ประเภทรถ:</strong> {{ $vehicle->vehicle_type ?: '-' }}<br>
                                     <strong>ยี่ห้อ / รุ่น:</strong> {{ $vehicle->brand ?: '-' }}{{ $vehicle->model ? ' / ' . $vehicle->model : '' }}
