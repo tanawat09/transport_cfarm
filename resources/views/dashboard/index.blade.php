@@ -7,65 +7,230 @@
 
 @push('styles')
 <style>
+    .dashboard-shell {
+        display: grid;
+        gap: 18px;
+    }
+
     .dashboard-hero {
+        position: relative;
+        overflow: hidden;
         padding: 28px;
-        border-radius: 24px;
-        color: #fff;
-        background: linear-gradient(135deg, #17324d 0%, #1f6f78 58%, #2f8a6b 100%);
-        box-shadow: 0 20px 38px rgba(23, 50, 77, 0.18);
+        border: 1px solid #d7e8de;
+        border-radius: 16px;
+        color: #16324b;
+        background:
+            radial-gradient(circle at top right, rgba(55, 187, 110, 0.14), transparent 32%),
+            linear-gradient(135deg, #ffffff 0%, #f5fbf7 100%);
+        box-shadow: 0 18px 38px rgba(18, 38, 58, 0.08);
+    }
+
+    .dashboard-hero::after {
+        content: "";
+        position: absolute;
+        right: -56px;
+        bottom: -72px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(31, 157, 85, 0.16), rgba(31, 157, 85, 0));
+        pointer-events: none;
+    }
+
+    .dashboard-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        padding: 7px 12px;
+        border: 1px solid #d7e8de;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.86);
+        color: #1b6b45;
+        font-size: .78rem;
+        font-weight: 800;
+        letter-spacing: .02em;
+    }
+
+    .dashboard-title {
+        margin: 0 0 8px;
+        font-size: 2rem;
+        font-weight: 900;
+        line-height: 1.08;
     }
 
     .dashboard-hero-note {
-        color: rgba(255, 255, 255, 0.82);
+        color: #667789;
+        font-size: .95rem;
+    }
+
+    .dashboard-hero-meta {
+        margin-top: 18px;
+        color: #6f8192;
+        font-size: .82rem;
+        font-weight: 600;
+    }
+
+    .dashboard-hero-meta strong {
+        color: #1d334a;
     }
 
     .metric-label {
-        color: #6b7b8c;
-        font-size: .88rem;
-        font-weight: 700;
+        color: #667789;
+        font-size: .8rem;
+        font-weight: 800;
+        letter-spacing: .02em;
+        text-transform: uppercase;
     }
 
     .metric-value {
-        font-size: 1.9rem;
-        font-weight: 800;
+        font-size: 1.95rem;
+        font-weight: 900;
         line-height: 1.1;
     }
 
     .metric-note {
-        color: #8a96a3;
-        font-size: .82rem;
+        color: #8392a2;
+        font-size: .8rem;
     }
 
     .mini-stat {
+        position: relative;
+        height: 100%;
         padding: 18px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #dce9e1;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    }
+
+    .mini-stat::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto auto 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #1f9d55, #7cd992);
+    }
+
+    .mini-stat-label {
+        color: #657788;
+        font-size: .82rem;
+        font-weight: 700;
+    }
+
+    .mini-stat-value {
+        margin-top: 8px;
+        font-size: 2.1rem;
+        font-weight: 900;
+        line-height: 1;
+        color: #14324a;
+    }
+
+    .metric-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        box-shadow: 0 12px 28px rgba(18, 38, 58, 0.06);
+    }
+
+    .metric-card .card-body {
+        padding: 1.1rem 1rem 1rem;
+    }
+
+    .metric-card.metric-card-compact .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: .85rem .9rem .8rem;
+    }
+
+    .metric-card.metric-card-compact {
+        height: 138px !important;
+        min-height: 0;
+    }
+
+    .metric-card.metric-card-compact .metric-icon {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        font-size: .92rem;
+    }
+
+    .metric-card.metric-card-compact .metric-label {
+        font-size: .74rem;
+    }
+
+    .metric-card.metric-card-compact .metric-value {
+        font-size: 1.62rem;
+    }
+
+    .metric-card.metric-card-compact .metric-note {
+        margin-top: .35rem !important;
+        font-size: .74rem;
+    }
+
+    .metric-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #1f9d55, #8dde9d);
+    }
+
+    .metric-icon {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        border-radius: 12px;
+        background: #ebf8ef;
+        color: #1b7e49;
+        font-size: 1.05rem;
+    }
+
+    .metric-card.is-alert .metric-icon {
+        background: #fff1f1;
+        color: #d44f4f;
+    }
+
+    .metric-card.is-warning .metric-icon {
+        background: #fff7e7;
+        color: #c78a17;
     }
 
     .section-title {
         font-size: 1.02rem;
-        font-weight: 800;
+        font-weight: 900;
     }
 
     .progress-track {
         width: 100%;
         height: 10px;
-        border-radius: 999px;
-        background: #edf2f7;
+        border-radius: 8px;
+        background: #edf3f0;
         overflow: hidden;
     }
 
     .progress-bar-soft {
         height: 100%;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #1f6f78, #2f8a6b);
+        border-radius: 8px;
+        background: linear-gradient(90deg, #1f9d55, #86daa2);
     }
 
     .dashboard-list-item:last-child {
         border-bottom: 0 !important;
         margin-bottom: 0 !important;
         padding-bottom: 0 !important;
+    }
+
+    .dashboard-list-item {
+        padding: 14px 0;
     }
 
     .chart-grid {
@@ -84,8 +249,9 @@
 
     .chart-bar {
         min-height: 12px;
-        border-radius: 12px 12px 4px 4px;
-        background: linear-gradient(180deg, #2f8a6b 0%, #1f6f78 100%);
+        border-radius: 8px 8px 3px 3px;
+        background: linear-gradient(180deg, #7fd89b 0%, #1f9d55 100%);
+        box-shadow: 0 10px 18px rgba(31, 157, 85, 0.18);
     }
 
     .chart-caption {
@@ -95,7 +261,57 @@
         white-space: nowrap;
     }
 
+    .dashboard-panel {
+        border: 1px solid #dce7df;
+        border-radius: 14px;
+        box-shadow: 0 12px 28px rgba(18, 38, 58, 0.06);
+    }
+
+    .dashboard-panel .card-header {
+        padding: 1rem 1rem .9rem;
+        background: linear-gradient(180deg, #fbfefc 0%, #f4faf6 100%);
+    }
+
+    .dashboard-panel .card-body {
+        padding: 1rem;
+    }
+
+    .dashboard-table thead th {
+        background: #f6faf7;
+        color: #5d7082;
+        font-size: .78rem;
+        text-transform: uppercase;
+        letter-spacing: .02em;
+    }
+
+    @media (max-width: 991.98px) {
+        .dashboard-title {
+            font-size: 1.72rem;
+        }
+    }
+
     @media (max-width: 767.98px) {
+        .dashboard-hero {
+            padding: 20px;
+        }
+
+        .dashboard-title {
+            font-size: 1.46rem;
+        }
+
+        .mini-stat-value {
+            font-size: 1.82rem;
+        }
+
+        .metric-value {
+            font-size: 1.72rem;
+        }
+
+        .metric-card.metric-card-compact {
+            height: 132px !important;
+            min-height: 0;
+        }
+
         .chart-grid {
             overflow-x: auto;
             grid-template-columns: repeat(6, 88px);
@@ -105,37 +321,44 @@
 @endpush
 
 @section('content')
+<div class="dashboard-shell">
 <div class="dashboard-hero mb-4">
     <div class="row g-4 align-items-center">
         <div class="col-xl-7">
-            <div class="small mb-2 dashboard-hero-note">อัปเดตล่าสุด {{ now()->format('d/m/Y H:i') }} น.</div>
-            <h2 class="fw-bold mb-2">ศูนย์รายงานระบบขนส่งอาหารไก่</h2>
+            <div class="dashboard-badge">
+                <i class="bi bi-activity"></i>
+                <span>อัปเดตล่าสุด {{ now()->format('d/m/Y H:i') }} น.</span>
+            </div>
+            <h2 class="dashboard-title">ศูนย์รายงานระบบขนส่งอาหารไก่</h2>
             <p class="mb-0 dashboard-hero-note">ดูภาพรวมการเดินรถ ค่าใช้น้ำมัน เอกสารใกล้หมดอายุ สถานะตรวจรถก่อนวิ่ง และประวัติการใช้งานรถในมุมที่อ่านง่ายขึ้น</p>
+            <div class="dashboard-hero-meta">
+                ภาพรวมสำหรับวันนี้: <strong>งานขนส่ง</strong>, <strong>เอกสารรถ</strong>, <strong>การตรวจสภาพ</strong> และ <strong>การใช้งานรถ</strong>
+            </div>
         </div>
         <div class="col-xl-5">
             <div class="row g-3">
                 <div class="col-6">
                     <div class="mini-stat">
-                        <div class="small dashboard-hero-note">เที่ยววันนี้</div>
-                        <div class="display-6 fw-bold mb-0">{{ number_format($todayJobsCount) }}</div>
+                        <div class="mini-stat-label">เที่ยววันนี้</div>
+                        <div class="mini-stat-value">{{ number_format($todayJobsCount) }}</div>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="mini-stat">
-                        <div class="small dashboard-hero-note">เที่ยวเดือนนี้</div>
-                        <div class="display-6 fw-bold mb-0">{{ number_format($monthJobsCount) }}</div>
+                        <div class="mini-stat-label">เที่ยวเดือนนี้</div>
+                        <div class="mini-stat-value">{{ number_format($monthJobsCount) }}</div>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="mini-stat">
-                        <div class="small dashboard-hero-note">ตรวจรถวันนี้</div>
-                        <div class="display-6 fw-bold mb-0">{{ number_format($inspectionTodayCount) }}</div>
+                        <div class="mini-stat-label">ตรวจรถวันนี้</div>
+                        <div class="mini-stat-value">{{ number_format($inspectionTodayCount) }}</div>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="mini-stat">
-                        <div class="small dashboard-hero-note">เอกสารใกล้หมด</div>
-                        <div class="display-6 fw-bold mb-0">{{ number_format($expiringDocumentCount) }}</div>
+                        <div class="mini-stat-label">เอกสารใกล้หมด</div>
+                        <div class="mini-stat-value">{{ number_format($expiringDocumentCount) }}</div>
                     </div>
                 </div>
             </div>
@@ -145,18 +368,15 @@
 
 <div class="row g-3 mb-4">
     @foreach([
-        ['label' => 'รถพร้อมใช้งาน', 'value' => number_format($vehicleCount), 'note' => 'คัน'],
-        ['label' => 'ค่าน้ำมันเดือนนี้', 'value' => number_format($monthlyOilCost, 2), 'note' => 'บาท'],
-        ['label' => 'ระยะทางเดือนนี้', 'value' => number_format($monthlyDistance, 2), 'note' => 'กม.'],
-        ['label' => 'น้ำหนักอาหารเดือนนี้', 'value' => number_format($monthlyFoodWeight, 2), 'note' => 'กก.'],
-        ['label' => 'เอกสารหมดอายุ', 'value' => number_format($expiredDocumentCount), 'note' => 'รายการ', 'class' => 'border-danger-subtle'],
-        ['label' => 'เอกสารใกล้หมดอายุ', 'value' => number_format($expiringDocumentCount), 'note' => 'ภายใน 30 วัน', 'class' => 'border-warning-subtle'],
-        ['label' => 'ตรวจรถไม่ผ่านเดือนนี้', 'value' => number_format($inspectionFailMonthCount), 'note' => 'ครั้ง'],
-        ['label' => 'ยางต้องติดตาม', 'value' => number_format($tireWarningCount), 'note' => 'ตำแหน่ง'],
+        ['label' => 'รถพร้อมใช้งาน', 'value' => number_format($vehicleCount), 'note' => 'คัน', 'icon' => 'bi-truck-front', 'compact' => true],
+        ['label' => 'ค่าน้ำมันเดือนนี้', 'value' => number_format($monthlyOilCost, 2), 'note' => 'บาท', 'icon' => 'bi-fuel-pump', 'compact' => true],
+        ['label' => 'ระยะทางเดือนนี้', 'value' => number_format($monthlyDistance, 2), 'note' => 'กม.', 'icon' => 'bi-signpost-2', 'compact' => true],
+        ['label' => 'น้ำหนักอาหารเดือนนี้', 'value' => number_format($monthlyFoodWeight, 2), 'note' => 'กก.', 'icon' => 'bi-box-seam', 'compact' => true],
     ] as $metric)
         <div class="col-sm-6 col-xl-3">
-            <div class="card metric-card h-100 {{ $metric['class'] ?? '' }}">
+            <div class="card metric-card {{ empty($metric['compact']) ? 'h-100' : '' }} {{ !empty($metric['compact']) ? 'metric-card-compact' : '' }} {{ $metric['class'] ?? '' }}">
                 <div class="card-body">
+                    <div class="metric-icon"><i class="bi {{ $metric['icon'] }}"></i></div>
                     <div class="metric-label">{{ $metric['label'] }}</div>
                     <div class="metric-value mt-2">{{ $metric['value'] }}</div>
                     <div class="metric-note mt-2">{{ $metric['note'] }}</div>
@@ -168,7 +388,7 @@
 
 <div class="row g-4 mb-4">
     <div class="col-xl-8">
-        <div class="card h-100">
+        <div class="card dashboard-panel h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span class="section-title">แนวโน้มค่าน้ำมันย้อนหลัง 6 เดือน</span>
                 <span class="badge text-bg-light">บาท / เดือน</span>
@@ -188,7 +408,7 @@
         </div>
     </div>
     <div class="col-xl-4">
-        <div class="card h-100">
+        <div class="card dashboard-panel h-100">
             <div class="card-header">
                 <span class="section-title">เที่ยวขนส่งย้อนหลัง 6 เดือน</span>
             </div>
@@ -212,7 +432,7 @@
 
 <div class="row g-4 mb-4">
     <div class="col-xl-6">
-        <div class="card h-100">
+        <div class="card dashboard-panel h-100">
             <div class="card-header">
                 <span class="section-title">รถที่วิ่งงานมากที่สุดในเดือนนี้</span>
             </div>
@@ -236,13 +456,13 @@
         </div>
     </div>
     <div class="col-xl-6">
-        <div class="card h-100">
+        <div class="card dashboard-panel h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span class="section-title">เอกสารรถใกล้หมดอายุ</span>
                 <a href="{{ route('vehicle-documents.index') }}" class="btn btn-sm btn-outline-secondary">ดูทั้งหมด</a>
             </div>
             <div class="card-body table-responsive">
-                <table class="table table-sm align-middle">
+                <table class="table table-sm align-middle dashboard-table">
                     <thead>
                         <tr>
                             <th>ทะเบียน</th>
@@ -273,13 +493,13 @@
 
 <div class="row g-4">
     <div class="col-xl-7">
-        <div class="card h-100">
+        <div class="card dashboard-panel h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span class="section-title">เที่ยวขนส่งล่าสุด</span>
                 <a href="{{ route('transport-jobs.index') }}" class="btn btn-sm btn-primary">ดูทั้งหมด</a>
             </div>
             <div class="card-body table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle dashboard-table">
                     <thead>
                         <tr>
                             <th>วันที่</th>
@@ -309,7 +529,7 @@
         </div>
     </div>
     <div class="col-xl-5">
-        <div class="card mb-4">
+        <div class="card dashboard-panel mb-4">
             <div class="card-header">
                 <span class="section-title">ตรวจรถไม่ผ่านล่าสุด</span>
             </div>
@@ -325,7 +545,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card dashboard-panel">
             <div class="card-header">
                 <span class="section-title">บันทึกการใช้รถล่าสุด</span>
             </div>
@@ -341,5 +561,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
